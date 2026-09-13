@@ -1,0 +1,19 @@
+# Netlify build settings. Having these here means the dashboard fields are
+# filled in automatically — nothing to configure by hand, and the settings are
+# version-controlled alongside the code.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Vite 5 needs Node 18+. Pinned so a change to Netlify's default image
+  # can't break the build without warning.
+  NODE_VERSION = "20"
+
+# Long-cache the hashed assets Vite emits. Their filenames change whenever the
+# contents change, so they can never go stale.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
