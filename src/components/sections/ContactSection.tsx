@@ -38,7 +38,7 @@ export default function ContactSection() {
          strip of its own colour above the rounded corners. Pulled up over the
          section above like the other sheets, so the corners reveal it. */
       className="relative z-10 -mt-10 rounded-t-[36px] border-t border-[#ded8cc] bg-[#f4f1ea] px-6 pb-7 pt-10 shadow-[0_-24px_60px_-34px_rgba(40,32,20,0.4)] sm:-mt-12 sm:px-10 sm:pt-12 lg:-mt-14 lg:px-14 lg:pt-16"
-      style={{ fontFamily: "'Archivo', system-ui, sans-serif" }}
+      style={{ fontFamily: "'Poppins', system-ui, sans-serif" }}
     >
       {/* Content stays at the design's width while the sheet spans the page */}
       <div className="mx-auto w-full max-w-[1104px]">
@@ -63,8 +63,8 @@ export default function ContactSection() {
             y={30}
             className="m-0 mt-5"
             style={{
-              fontFamily: "'Instrument Serif', serif",
-              fontWeight: 400,
+              fontFamily: "'Poppins', system-ui, sans-serif",
+              fontWeight: 600,
               fontSize: 'clamp(40px, 7.5vw, 96px)',
               lineHeight: 0.9,
               letterSpacing: '-0.03em',

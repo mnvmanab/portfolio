@@ -35,8 +35,8 @@ export default function HeroEditorialSection() {
   return (
     <section
       id="intro-editorial"
-      className="relative overflow-hidden bg-[#f4f1ea] lg:min-h-[834px]"
-      style={{ fontFamily: "'Archivo', system-ui, sans-serif" }}
+      className="relative overflow-hidden bg-[#f4f1ea] lg:min-h-[690px]"
+      style={{ fontFamily: "'Poppins', system-ui, sans-serif" }}
     >
       {/* Ruled-paper lines */}
       <div
@@ -49,8 +49,11 @@ export default function HeroEditorialSection() {
       />
 
       {/* min-h on the grid (not just the section) so the left column actually
-          stretches — otherwise mt-auto leaves dead space below the stats. */}
-      <div className="relative grid grid-cols-1 lg:min-h-[834px] lg:grid-cols-[1fr_470px]">
+          stretches — otherwise mt-auto leaves dead space below the stats.
+          The value sets the gap above the heading: the content needs ~631px,
+          and anything beyond that becomes empty space under the nav. The
+          badge needs 638px (top 154 + height 484), so this is the real floor. */}
+      <div className="relative grid grid-cols-1 lg:min-h-[690px] lg:grid-cols-[1fr_470px]">
         {/* ── Left column ── */}
         <div className="flex flex-col px-6 py-12 sm:px-10 sm:py-14 lg:px-14 lg:pb-12 lg:pt-16">
           {/* Nav */}
@@ -71,7 +74,10 @@ export default function HeroEditorialSection() {
             ))}
           </FadeIn>
 
-          <div className="mt-14 lg:mt-auto">
+          {/* Bottom-anchored at lg so the stats line up with the badge. The
+              gap above comes from the grid's min-height, not from a margin —
+              see the min-h note above. */}
+          <div className="mt-8 lg:mt-auto">
             {/* Availability pill — hidden for now. Uncomment to restore.
             <FadeIn delay={0.08} y={20} className="mb-[18px] flex items-center gap-3.5">
               <span className="inline-flex shrink-0 items-center gap-2.5 rounded-full border border-[#d3ccbe] bg-[#faf8f3] py-1.5 pl-[11px] pr-3.5">
@@ -90,18 +96,36 @@ export default function HeroEditorialSection() {
               y={30}
               className="m-0 text-[#14110e]"
               style={{
-                fontFamily: "'Instrument Serif', serif",
-                fontWeight: 400,
-                fontSize: 'clamp(2.6rem, 7.2vw, 108px)',
-                lineHeight: 0.94,
+                fontFamily: "'Poppins', system-ui, sans-serif",
+                fontWeight: 600,
                 letterSpacing: '-0.025em',
+                lineHeight: 0.98,
               }}
             >
-              Hi, I am
-              <br />
-              Manab <em className="not-italic" style={{ color: ACCENT }}>—</em> an
-              <br />
-              engineer &amp; designer.
+              {/* Line 1 — the introduction, at the full display size,
+                  forced onto a single line so the name reads as one word. */}
+              <span
+                style={{
+                  display: 'block',
+                  fontSize: 'clamp(2.2rem, 6vw, 90px)',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Hi, I am Manab
+              </span>
+
+              {/* Line 2 — the role, ~70% of the display size so the name
+                  reads as the anchor and the role reads as a subtitle. */}
+              <span
+                style={{
+                  display: 'block',
+                  marginTop: '0.15em',
+                  fontSize: 'clamp(1.55rem, 4.2vw, 64px)',
+                  lineHeight: 1.05,
+                }}
+              >
+                <em className="not-italic" style={{ color: ACCENT }}>—</em> an engineer &amp; designer.
+              </span>
             </FadeIn>
 
             <FadeIn
@@ -110,7 +134,7 @@ export default function HeroEditorialSection() {
               y={24}
               className="mt-7 max-w-[520px] text-base leading-[1.68] text-[#57524a]"
             >
-              An engineer turned designer with 4+ years across B2B &amp; SaaS. I
+              An engineer with 4+ years across B2B &amp; SaaS turned designer. I
               don&apos;t just bridge design and engineering — I own the entire
               experience, from the first sketch to the final shipped product.
             </FadeIn>
@@ -142,7 +166,7 @@ export default function HeroEditorialSection() {
                 <div key={s.label}>
                   <div
                     className="text-[32px] leading-none text-[#14110e]"
-                    style={{ fontFamily: "'Instrument Serif', serif" }}
+                    style={{ fontFamily: "'Poppins', system-ui, sans-serif" }}
                   >
                     {s.value}
                     <span style={{ color: ACCENT }}>{s.suffix}</span>
@@ -216,7 +240,7 @@ export default function HeroEditorialSection() {
                 <div>
                   <div
                     className="text-[26px] leading-none text-[#14110e]"
-                    style={{ fontFamily: "'Instrument Serif', serif" }}
+                    style={{ fontFamily: "'Poppins', system-ui, sans-serif" }}
                   >
                     {BADGE_NAME}
                   </div>

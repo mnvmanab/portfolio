@@ -46,7 +46,7 @@ function CardFace({ item }: { item: Discipline }) {
         <h3
           className="mt-2 flex items-start font-black uppercase leading-[0.95] tracking-tight"
           style={{
-            fontFamily: "'Archivo', system-ui, sans-serif",
+            fontFamily: "'Poppins', system-ui, sans-serif",
             fontSize: 'clamp(1.05rem, 1.5vw, 1.55rem)',
             minHeight: '1.9em', // two lines at leading-[0.95]
           }}
@@ -135,8 +135,8 @@ function Heading() {
         y={24}
         className="m-0 text-[#14110e]"
         style={{
-          fontFamily: "'Instrument Serif', serif",
-          fontWeight: 400,
+          fontFamily: "'Poppins', system-ui, sans-serif",
+          fontWeight: 600,
           fontSize: 'clamp(2.4rem, 7vw, 76px)',
           lineHeight: 1,
           letterSpacing: '-0.02em',
@@ -173,7 +173,7 @@ export default function DisciplinesSection() {
       /* Hairline at the seam — the hero shares this exact cream, so without a
          rule the two sections run together with no boundary at all. */
       className="border-t border-[#ded8cc] bg-[#f4f1ea]"
-      style={{ fontFamily: "'Archivo', system-ui, sans-serif" }}
+      style={{ fontFamily: "'Poppins', system-ui, sans-serif" }}
     >
       {/* ── Desktop: pinned scroll-scrub ── */}
       <div ref={runwayRef} className="relative hidden h-[150vh] lg:block">

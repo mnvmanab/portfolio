@@ -45,16 +45,35 @@ function ProjectCard({ item }: { item: Project }) {
       className="group relative flex flex-col overflow-hidden rounded-lg transition-transform duration-[250ms] hover:-translate-y-1"
       style={{
         background: item.bg,
-        height: 'clamp(640px, 95vh, 900px)',
+        // Fixed card height — the image slot below fills the remaining
+        // space and lets any overflow at the BOTTOM of the shot get clipped,
+        // so the phone renders at wide-as-possible without changing height.
+        height: 'clamp(720px, 108vh, 1020px)',
         transitionTimingFunction: 'cubic-bezier(.2,.7,.3,1)',
       }}
     >
+      {/* Full-card click target — rendered ABOVE the tile background but with
+          no visual of its own, so the card content still reads clearly and
+          the group-hover animations still fire. Only when a href exists. */}
+      {item.href && (
+        <a
+          href={item.href}
+          className="absolute inset-0 z-10 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          style={{
+            outlineColor: ACCENT,
+            // Tailwind's ring colour token — accented to match the CTA link.
+            ['--tw-ring-color' as string]: ACCENT,
+          } as React.CSSProperties}
+          aria-label={`${item.title} — ${item.cta ?? 'Open'}`}
+        />
+      )}
+
       <div className="px-7 pb-7 pt-9 sm:px-9 sm:pt-11 lg:px-11 lg:pb-[34px] lg:pt-[46px]">
         <div className="flex items-baseline gap-3">
           <span
             className="leading-none"
             style={{
-              fontFamily: "'Instrument Serif', serif",
+              fontFamily: "'Poppins', system-ui, sans-serif",
               fontSize: 22,
               color: ACCENT,
             }}
@@ -69,22 +88,23 @@ function ProjectCard({ item }: { item: Project }) {
         <h3
           className="mt-3.5 text-[#14110e]"
           style={{
-            fontFamily: "'Instrument Serif', serif",
-            fontWeight: 400,
+            fontFamily: "'Poppins', system-ui, sans-serif",
+            fontWeight: 600,
             fontSize: 'clamp(1.9rem, 3.2vw, 46px)',
             lineHeight: 1.04,
             letterSpacing: '-0.02em',
-            maxWidth: '11ch',
-            textWrap: 'pretty',
+            // No max-width: an 11ch cap broke longer titles onto three lines.
+            // textWrap:'balance' splits a two-line title evenly instead of
+            // leaving one orphaned word on the second line.
+            textWrap: 'balance',
           }}
         >
           {item.title}
         </h3>
 
-        <p
-          className="mt-[18px] text-[15px] leading-[1.65] text-[#4a463e]"
-          style={{ maxWidth: '44ch' }}
-        >
+        {/* No max-width: the description fills the card's padding box so its
+            trailing inset matches its leading inset. */}
+        <p className="mt-[18px] text-[15px] leading-[1.65] text-[#4a463e]">
           {item.description}
         </p>
 
@@ -102,14 +122,18 @@ function ProjectCard({ item }: { item: Project }) {
         )}
       </div>
 
-      {/* Phone-shaped column, flush to the card's bottom edge. Sized by
-          aspect ratio off its height so portrait mobile screenshots fill it
-          without being cropped or stretched. */}
-      <div className="relative flex min-h-0 flex-1 justify-center px-7 sm:px-9 lg:px-11">
+      {/* Phone-shaped column, flush to the card's bottom edge. Width is
+          capped at 296px and the slot's aspect ratio is locked to the
+          "top 60% of the mockup" shape — image 1742 × 3609, visible slice
+          1742 × 2165 → aspect 1742 / 2165. Locking the aspect (instead of
+          filling the flex parent's variable height) makes exactly 60% of
+          the image show in every viewport, not just at 640-px card height.
+          `items-end` keeps the slot flush to the card's bottom edge. */}
+      <div className="relative flex min-h-0 flex-1 items-end justify-center px-7 sm:px-9 lg:px-11">
         <div
-          className="h-full max-w-full overflow-hidden rounded-t-[26px]"
+          className="mx-auto w-full max-w-[296px] overflow-hidden rounded-t-[26px]"
           style={{
-            aspectRatio: '9 / 19.5',
+            aspectRatio: '1742 / 2165',
             background: 'rgba(20,17,14,.06)',
           }}
         >
@@ -147,7 +171,7 @@ export default function ProjectsPaperSection() {
          edge and an upward shadow. The negative margin is what makes the
          rounded corners reveal the cream above rather than the dark page. */
       className="relative z-10 -mt-10 rounded-t-[32px] border-t border-[#ded8cc] bg-[#f7f5f0] px-6 pb-16 pt-12 shadow-[0_-18px_44px_-26px_rgba(40,32,20,0.42)] sm:-mt-12 sm:rounded-t-[40px] sm:px-10 sm:pb-20 sm:pt-14 lg:-mt-14 lg:rounded-t-[48px] lg:px-14 lg:pb-24 lg:pt-16"
-      style={{ fontFamily: "'Archivo', system-ui, sans-serif" }}
+      style={{ fontFamily: "'Poppins', system-ui, sans-serif" }}
     >
       {/* Header */}
       <FadeIn
@@ -170,8 +194,8 @@ export default function ProjectsPaperSection() {
           <h2
             className="m-0 text-[#14110e]"
             style={{
-              fontFamily: "'Instrument Serif', serif",
-              fontWeight: 400,
+              fontFamily: "'Poppins', system-ui, sans-serif",
+              fontWeight: 600,
               fontSize: 'clamp(2.2rem, 5vw, 52px)',
               lineHeight: 1,
               letterSpacing: '-0.02em',
@@ -183,7 +207,7 @@ export default function ProjectsPaperSection() {
           <div className="mt-4 flex items-center gap-4">
             <span className="h-px w-[34px] shrink-0" style={{ background: ACCENT }} />
             <span className="text-sm text-[#57524a]">
-              Personal projects in design and iOS development.
+              Personal projects and shipped product work.
             </span>
           </div>
         </div>

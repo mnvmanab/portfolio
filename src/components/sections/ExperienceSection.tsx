@@ -91,8 +91,8 @@ function RoleCard({ role, pinned = false }: { role: Role; pinned?: boolean }) {
         <div
           className="text-[#14110e]"
           style={{
-            fontFamily: "'Instrument Serif', serif",
-            fontWeight: 400,
+            fontFamily: "'Poppins', system-ui, sans-serif",
+            fontWeight: 600,
             fontSize: 'clamp(1.75rem, 3vw, 34px)',
             lineHeight: 1.05,
             letterSpacing: '-0.01em',
@@ -126,7 +126,7 @@ export default function ExperienceSection() {
          The band's padding matches every other section (px-6/10/14) so the
          panel's edges land on the page's shared content column. */
       className="bg-[#e9e7e2] px-6 py-10 sm:px-10 lg:px-14"
-      style={{ fontFamily: "'Archivo', system-ui, sans-serif" }}
+      style={{ fontFamily: "'Poppins', system-ui, sans-serif" }}
     >
       <div className="rounded-[30px] border border-[#ded8cc] bg-[#f4f1ea] px-6 pb-10 pt-10 sm:px-10 sm:pb-11 sm:pt-12 lg:px-14">
         {/* The panel background spans the full content column, but the content
@@ -142,8 +142,8 @@ export default function ExperienceSection() {
               <h2
                 className="m-0 text-[#14110e]"
                 style={{
-                  fontFamily: "'Instrument Serif', serif",
-                  fontWeight: 400,
+                  fontFamily: "'Poppins', system-ui, sans-serif",
+                  fontWeight: 600,
                   fontSize: 'clamp(2.2rem, 5vw, 52px)',
                   lineHeight: 1,
                   letterSpacing: '-0.02em',

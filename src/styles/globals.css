@@ -12,7 +12,15 @@ html,
 body,
 #root {
   background: #0c0c0c;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-weight: 400;
+}
+
+h1,
+h2,
+h3 {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-weight: 600;
 }
 
 /* Lanyard badge sway + availability-dot pulse (from the Claude Design source) */

@@ -96,7 +96,7 @@ function CaseCard({ item }: { item: Case }) {
         <span
           className="leading-none"
           style={{
-            fontFamily: "'Instrument Serif', serif",
+            fontFamily: "'Poppins', system-ui, sans-serif",
             fontSize: 24,
             color: ACCENT,
           }}
@@ -126,7 +126,7 @@ function CaseCard({ item }: { item: Case }) {
         <div className="mt-auto flex items-baseline gap-2.5 border-t border-[#ded8cc] pt-5">
           <span
             className="leading-none text-[#14110e]"
-            style={{ fontFamily: "'Instrument Serif', serif", fontSize: 30 }}
+            style={{ fontFamily: "'Poppins', system-ui, sans-serif", fontSize: 30 }}
           >
             {item.result.value}
           </span>
@@ -146,7 +146,7 @@ export default function BeforeAfterPaperSection() {
       /* Same sheet treatment as the section above: rounded top, hairline
          edge and an upward shadow, pulled up so the corners reveal cream. */
       className="relative z-10 -mt-10 rounded-t-[32px] border-t border-[#ded8cc] bg-[#f4f1ea] px-6 pb-16 pt-12 shadow-[0_-18px_44px_-26px_rgba(40,32,20,0.42)] sm:-mt-12 sm:rounded-t-[40px] sm:px-10 sm:pb-20 sm:pt-14 lg:-mt-14 lg:rounded-t-[48px] lg:px-14 lg:pb-24 lg:pt-16"
-      style={{ fontFamily: "'Archivo', system-ui, sans-serif" }}
+      style={{ fontFamily: "'Poppins', system-ui, sans-serif" }}
     >
       <FadeIn
         delay={0}
@@ -168,8 +168,8 @@ export default function BeforeAfterPaperSection() {
           <h2
             className="m-0 text-[#14110e]"
             style={{
-              fontFamily: "'Instrument Serif', serif",
-              fontWeight: 400,
+              fontFamily: "'Poppins', system-ui, sans-serif",
+              fontWeight: 600,
               fontSize: 'clamp(2.2rem, 5vw, 52px)',
               lineHeight: 1,
               letterSpacing: '-0.02em',
