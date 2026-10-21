@@ -14,6 +14,27 @@ export type Project = {
   bg: string
   /** Image path under public/assets/images/projects/ — null renders a slot */
   src: string | null
+  /**
+   * How the image sits in the slot. 'cover' (default) fills it and crops to
+   * the top ~60%, which suits a tall mockup. 'contain' scales the whole
+   * image down so nothing is cut — use it when the full screen matters more
+   * than filling the slot.
+   */
+  fit?: 'cover' | 'contain'
+  /**
+   * Slot shape. 'portrait' (default) is the tall phone slot capped at 296px.
+   * 'landscape' reshapes it to 16:9 and lets it use the card's content width,
+   * for wide multi-device mockups that would be illegible at 296px.
+   */
+  slotShape?: 'portrait' | 'landscape'
+  /**
+   * Slot aspect, as `width / height`, for whichever shape the card uses.
+   * Portrait defaults to '1742 / 2165' (the top 60% of a 1742 × 3609 mockup);
+   * landscape defaults to '2000 / 1116'. Set it per card — a taller portrait
+   * slot applied to every card pushes the placeholder into the card's link
+   * on narrow screens.
+   */
+  slotRatio?: string
   slotLabel: string
   /** Link label; omitted for work that isn't viewable yet */
   cta?: string
@@ -34,8 +55,14 @@ export const PROJECTS: Project[] = [
     description:
       "Ongoing UI/UX work on the company's iOS app. I spot the rough edges in live screens, redesign them, and ship the fix myself — a continuous loop of before-and-after improvements across the product.",
     bg: '#e4e6ec',
-    src: null,
+    // Wide before/after comparison, so it takes the landscape slot at its
+    // own 2000 × 1237 rather than the tall phone slot.
+    src: '/assets/images/projects/engagement-card.jpg',
+    slotShape: 'landscape',
+    slotRatio: '2000 / 1237',
     slotLabel: 'Redesigned screens',
+    cta: 'View case study',
+    href: '#/engagement',
   },
   {
     number: '02',
@@ -44,8 +71,15 @@ export const PROJECTS: Project[] = [
     description:
       'A privacy-first spending tracker. I designed and built the marketing site and the in-app budgeting surfaces — habit-to-goal flows, streak states, and the weekly budget ring.',
     bg: '#efe6d3',
-    src: null,
+    // Served out of public/spendwise/assets/. The card slot is 296×368 with
+    // object-cover anchored to the top, so a full 1170×2532 screenshot shows
+    // its top ~57% — logo, period toggle and the budget ring.
+    // Wide two-phone mockup with a transparent background, so it gets the
+    // landscape slot and floats on the card tint rather than sitting in a box.
+    src: '/spendwise/assets/hero-card.png',
+    slotShape: 'landscape',
     slotLabel: 'SpendWise — app screen',
+    href: '#/spendwise',
     cta: 'View case study',
   },
   {
@@ -60,6 +94,10 @@ export const PROJECTS: Project[] = [
     // the case study itself uses the naked 393×852 welcome.png inside
     // its own coded phone frames.
     src: '/tutorme/assets/welcome-card.png',
+    // Taller than the default so 75% of the mockup shows (1742 × 2707 of
+    // 1742 × 3609) — this card's art earns the extra height; the others
+    // keep the 60% slot.
+    slotRatio: '1742 / 2707',
     slotLabel: 'Tutor Me — key screens',
     cta: 'View case study',
     href: '#/tutorme',

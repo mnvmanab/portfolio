@@ -1,0 +1,910 @@
+<title>SpendWise Case Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#F8FAFC; --surface:#FFFFFF; --sunk:#EEF3F1; --ink:#0F172A; --ink-2:#475569; --ink-3:#7C8A9E;
+  --line:#DCE4E1; --accent:#059669; --accent-soft:#D1FAE5; --accent-ink:#065F46;
+  --amber:#B45309; --amber-soft:#FEF3C7; --red:#B91C1C; --red-soft:#FEE2E2; --blue:#1D4ED8; --blue-soft:#DBEAFE;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Nunito Sans", "Avenir Next", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0F172A; --surface:#1E293B; --sunk:#16213A; --ink:#F1F5F9; --ink-2:#B6C2D2; --ink-3:#8594A8;
+    --line:#2C3A50; --accent:#34D399; --accent-soft:#0F3B31; --accent-ink:#6EE7B7;
+    --amber:#FBBF24; --amber-soft:#3A2E12; --red:#F87171; --red-soft:#3B1C22; --blue:#93C5FD; --blue-soft:#1C2C4B;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F172A; --surface:#1E293B; --sunk:#16213A; --ink:#F1F5F9; --ink-2:#B6C2D2; --ink-3:#8594A8;
+  --line:#2C3A50; --accent:#34D399; --accent-soft:#0F3B31; --accent-ink:#6EE7B7;
+  --amber:#FBBF24; --amber-soft:#3A2E12; --red:#F87171; --red-soft:#3B1C22; --blue:#93C5FD; --blue-soft:#1C2C4B;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;padding-inline:20px;padding-block:0 80px}
+.wrap{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:200px minmax(0,1fr);gap:56px}
+@media (max-width:860px){.wrap{grid-template-columns:minmax(0,1fr);gap:0}}
+h1,h2,h3,h4{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15;letter-spacing:-.01em}
+h1{font-size:clamp(2.4rem,6vw,4rem);font-weight:800}
+h2{font-size:clamp(1.7rem,3.6vw,2.4rem);font-weight:700}
+h3{font-size:1.3rem;font-weight:700}
+h4{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:66ch}
+.muted{color:var(--ink-2)}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.stack{display:flex;flex-direction:column;gap:16px}
+.stack-lg{display:flex;flex-direction:column;gap:28px}
+ul,ol{margin:0;padding-left:1.2em;max-width:66ch}
+li+li{margin-top:6px}
+strong{font-weight:700}
+code,.mono{font-family:var(--mono);font-size:.86em}
+
+/* nav */
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;padding-top:56px}
+nav.toc ol{list-style:none;padding:0;display:flex;flex-direction:column;gap:2px}
+nav.toc li+li{margin:0}
+nav.toc a{display:grid;grid-template-columns:28px 1fr;gap:6px;padding:8px 10px;border-radius:10px;color:var(--ink-2);text-decoration:none;font-weight:600;font-size:.95rem}
+nav.toc a span{font-family:var(--mono);font-size:.75rem;color:var(--ink-3);padding-top:3px}
+nav.toc a:hover,nav.toc a:focus-visible{background:var(--sunk);color:var(--ink);outline:none}
+nav.toc .sub a{grid-template-columns:28px 1fr;font-weight:400;font-size:.88rem}
+@media (max-width:860px){
+  nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:10px 0;border-bottom:1px solid var(--line);margin-inline:-20px;padding-inline:20px;overflow-x:auto}
+  nav.toc ol{flex-direction:row;gap:4px;width:max-content}
+  nav.toc .sub{display:none}
+  nav.toc a{grid-template-columns:auto auto;white-space:nowrap}
+}
+
+main{min-width:0;display:flex;flex-direction:column;gap:96px;padding-top:56px}
+section{scroll-margin-top:72px}
+
+/* hero */
+.hero{display:flex;flex-direction:column;gap:22px}
+.hero .lede{font-size:1.2rem;color:var(--ink-2);max-width:60ch}
+.meta{display:flex;flex-wrap:wrap;gap:10px 28px;font-size:.9rem;color:var(--ink-2);border-top:1px solid var(--line);padding-top:18px}
+.meta b{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:400}
+
+/* stage rail */
+.stages{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface)}
+.stages a{padding:14px 14px 16px;text-decoration:none;color:var(--ink);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
+.stages a:last-child{border-right:0}
+.stages a:hover,.stages a:focus-visible{background:var(--sunk);outline:none}
+.stages .n{font-family:var(--mono);font-size:.72rem;color:var(--accent)}
+.stages .t{font-family:var(--display);font-weight:700;font-size:1.05rem}
+.stages .d{font-size:.8rem;color:var(--ink-2);line-height:1.4}
+@media (max-width:700px){.stages{grid-template-columns:1fr}.stages a{border-right:0;border-bottom:1px solid var(--line)}.stages a:last-child{border-bottom:0}}
+
+.stage-head{display:flex;flex-direction:column;gap:10px;padding-bottom:18px;border-bottom:2px solid var(--ink)}
+.stage-head .q{font-size:1.1rem;color:var(--ink-2)}
+
+/* blocks */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px}
+.callout{background:var(--accent-soft);color:var(--accent-ink);border-radius:14px;padding:20px 22px;font-family:var(--display);font-size:1.25rem;font-weight:600;line-height:1.35}
+.callout small{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:400;margin-bottom:6px;opacity:.85}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.grid2,.grid3{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+.card p,.card li{font-size:.95rem}
+.tag{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:2px 8px;border-radius:999px;background:var(--sunk);color:var(--ink-2);letter-spacing:.04em}
+.tag.g{background:var(--accent-soft);color:var(--accent-ink)}
+.tag.a{background:var(--amber-soft);color:var(--amber)}
+.tag.r{background:var(--red-soft);color:var(--red)}
+.tag.b{background:var(--blue-soft);color:var(--blue)}
+.note{font-size:.88rem;color:var(--ink-2);border-left:3px solid var(--line);padding-left:12px}
+
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:.93rem}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:400;background:var(--sunk)}
+tr:last-child td{border-bottom:0}
+td.yes{color:var(--accent);font-weight:700}
+td.no{color:var(--ink-3)}
+
+/* questions */
+.qgroup{display:flex;flex-direction:column;gap:10px}
+.qgroup ol{counter-reset:q;list-style:none;padding:0}
+.qgroup li{counter-increment:q;display:grid;grid-template-columns:34px 1fr;gap:6px;font-size:.97rem}
+.qgroup li::before{content:"Q" counter(q);font-family:var(--mono);font-size:.75rem;color:var(--ink-3);padding-top:3px}
+.qgroup li i{grid-column:2;color:var(--ink-3);font-size:.85rem;font-style:normal}
+
+/* persona */
+.persona{display:grid;grid-template-columns:220px minmax(0,1fr);gap:28px}
+@media (max-width:760px){.persona{grid-template-columns:1fr}}
+.avatar{aspect-ratio:1;max-width:100%;border-radius:18px;background:var(--accent-soft);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:4rem;color:var(--accent-ink)}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:.92rem;margin-top:14px}
+.facts dt{color:var(--ink-3);font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;padding-top:3px}
+.facts dd{margin:0}
+.quote{font-family:var(--display);font-size:1.35rem;font-weight:600;line-height:1.35;max-width:40ch}
+
+/* empathy map */
+.emap{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--surface);position:relative}
+.emap > div{padding:22px;display:flex;flex-direction:column;gap:8px}
+.emap > div:nth-child(1){border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.emap > div:nth-child(2){border-bottom:1px solid var(--line)}
+.emap > div:nth-child(3){border-right:1px solid var(--line)}
+.emap ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px}
+.emap li{font-size:.93rem;margin:0}
+.emap li::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:8px;vertical-align:middle}
+.emap .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:92px;height:92px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.1rem;padding:0;border:4px solid var(--surface)}
+@media (max-width:640px){.emap{grid-template-columns:1fr}.emap > div{border-right:0!important;border-bottom:1px solid var(--line)}.emap .center{display:none}}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:640px){.pg{grid-template-columns:1fr}}
+
+/* flow */
+.flow-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:18px;background:var(--surface);padding:24px}
+.flow{min-width:760px;display:flex;flex-direction:column;align-items:center;gap:0}
+.node{border:1.5px solid var(--ink);border-radius:12px;padding:10px 16px;font-weight:700;font-size:.92rem;background:var(--surface);text-align:center}
+.node small{display:block;font-weight:400;font-size:.78rem;color:var(--ink-2)}
+.node.dark{background:var(--ink);color:var(--bg)}
+.node.dark small{color:var(--bg);opacity:.75}
+.node.dash{border-style:dashed}
+.vline{width:2px;height:22px;background:var(--ink-3)}
+.branch{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;width:100%;position:relative;padding-top:22px}
+.branch::before{content:"";position:absolute;top:0;left:10%;right:10%;height:2px;background:var(--ink-3)}
+.col{display:flex;flex-direction:column;align-items:stretch;gap:8px;position:relative}
+.col::before{content:"";position:absolute;top:-22px;left:50%;width:2px;height:22px;background:var(--ink-3)}
+.col .node.tab{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent)}
+.leaf{font-size:.8rem;padding:6px 10px;border-radius:8px;background:var(--sunk);color:var(--ink-2);line-height:1.35}
+.fab-row{margin-top:18px;width:100%;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;font-size:.85rem;color:var(--ink-2)}
+
+/* feature tabs */
+.ftabs{display:flex;flex-wrap:wrap;gap:8px}
+.ftabs button{font:inherit;font-weight:700;font-size:.92rem;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);cursor:pointer}
+.ftabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.ftabs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.fpanel{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:28px}
+@media (max-width:760px){.fpanel{grid-template-columns:1fr}}
+.feat{list-style:none;padding:0;display:flex;flex-direction:column;gap:12px}
+.feat li{margin:0;display:grid;grid-template-columns:18px 1fr;gap:10px;font-size:.95rem}
+.feat li::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--accent);margin-top:7px}
+.feat b{display:block}
+.why{background:var(--sunk);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:10px;align-self:start}
+
+/* walkthrough */
+.walk{display:flex;flex-direction:column;gap:0;border-left:2px solid var(--line);margin-left:14px}
+.step{position:relative;padding:0 0 28px 30px;display:flex;flex-direction:column;gap:6px}
+.step:last-child{padding-bottom:0}
+.step::before{content:attr(data-t);position:absolute;left:-15px;top:0;width:28px;height:28px;border-radius:50%;background:var(--surface);border:2px solid var(--accent);font-family:var(--mono);font-size:.72rem;display:grid;place-items:center;color:var(--accent-ink);font-weight:600}
+.step .when{font-family:var(--mono);font-size:.75rem;color:var(--ink-3)}
+.step .screen{font-size:.85rem;color:var(--accent-ink);background:var(--accent-soft);display:inline-block;padding:2px 10px;border-radius:999px;align-self:flex-start}
+
+.formula{font-family:var(--mono);font-size:.85rem;background:var(--sunk);border-radius:12px;padding:16px 18px;overflow-x:auto;white-space:pre;line-height:1.7}
+.ring-demo{display:flex;gap:10px;flex-wrap:wrap}
+.ring-demo span{font-size:.85rem;display:flex;align-items:center;gap:6px}
+.ring-demo i{width:12px;height:12px;border-radius:50%;display:inline-block}
+
+footer{border-top:1px solid var(--line);padding-top:24px;color:var(--ink-3);font-size:.88rem}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+
+  /* Screens showcase: a horizontal rail per tab, so a long app stays
+     scannable instead of turning into one very tall column. */
+  .shots{display:flex;gap:18px;overflow-x:auto;padding:4px 2px 14px;scrollbar-width:thin}
+  .shots .shot{flex:0 0 200px;margin:0}
+  .shots .shot img{display:block;width:100%;height:auto;border-radius:16px;border:1px solid var(--line);background:var(--surface)}
+  .shots .shot figcaption{margin-top:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:var(--ink-3);line-height:1.5}
+  @media (max-width:640px){.shots .shot{flex:0 0 156px}}
+</style>
+
+<div class="wrap">
+<nav class="toc" aria-label="Case study sections">
+  <ol>
+    <li><a href="#overview"><span>00</span>Overview</a></li>
+    <li><a href="#empathize"><span>01</span>Empathize</a></li>
+    <li><a href="#define"><span>02</span>Define</a></li>
+    <li><a href="#ideate"><span>03</span>Ideate</a></li>
+    <li><a href="#prototype"><span>04</span>Prototype</a></li>
+    <li class="sub"><a href="#flow"><span></span>App flow</a></li>
+    <li class="sub"><a href="#features"><span></span>Tab by tab</a></li>
+    <li class="sub"><a href="#walkthrough"><span></span>Walkthrough</a></li>
+    <li><a href="#screens"><span>05</span>Screens</a></li>
+    <li><a href="#iterate"><span>06</span>What changed</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<!-- OVERVIEW -->
+<section id="overview" class="hero">
+  <div class="eyebrow">UX Case Study · iOS · SwiftUI</div>
+  <h1>SpendWise: turning bad spending habits into savings you can watch grow</h1>
+  <p class="lede">Most expense trackers record where money went. SpendWise helps people cut the habits that drain it, sends the savings to goals they care about, and gives them a reason to open the app every day.</p>
+  <div class="meta">
+    <div><b>Role</b>UI/UX design, product thinking, iOS build</div>
+    <div><b>Platform</b>iPhone, SwiftUI + SwiftData</div>
+    <div><b>Method</b>Design thinking, 5 stages</div>
+    <div><b>Market</b>India first (₹ default), 7 currencies</div>
+  </div>
+
+  <div class="stages" role="list">
+    <a href="#empathize" role="listitem"><span class="n">01</span><span class="t">Empathize</span><span class="d">Research plan, proto-persona, empathy map</span></a>
+    <a href="#define" role="listitem"><span class="n">02</span><span class="t">Define</span><span class="d">Problem, insight, How Might We</span></a>
+    <a href="#ideate" role="listitem"><span class="n">03</span><span class="t">Ideate</span><span class="d">Concepts, prioritisation, differentiation</span></a>
+    <a href="#prototype" role="listitem"><span class="n">04</span><span class="t">Prototype</span><span class="d">Flow, tab features, walkthrough</span></a>
+    <a href="#screens" role="listitem"><span class="n">05</span><span class="t">Screens</span><span class="d">Twenty screens from the built app</span></a>
+    <a href="#iterate" role="listitem"><span class="n">06</span><span class="t">What changed</span><span class="d">Iterations made, and what’s next</span></a>
+  </div>
+
+  <div class="grid3">
+    <div class="card">
+      <span class="tag r">The problem</span>
+      <h4>Trackers feel like homework</h4>
+      <p class="muted">People download an expense app, log for a week or two, then stop. The app asks for effort every day and gives back only a record of what they already spent.</p>
+    </div>
+    <div class="card">
+      <span class="tag b">Our understanding</span>
+      <h4>Guilt doesn't change behaviour</h4>
+      <p class="muted">People already know roughly where their money leaks: cigarettes, delivery, coffee, impulse buys. What's missing is a reason to stop that feels rewarding right now.</p>
+    </div>
+    <div class="card">
+      <span class="tag g">Our solution</span>
+      <h4>A reward loop, not a ledger</h4>
+      <p class="muted">Each habit you cut becomes a savings number. One tap marks a clean day, grows a streak, and moves money toward a named goal like a new phone or a trip.</p>
+    </div>
+  </div>
+</section>
+
+<!-- EMPATHIZE -->
+<section id="empathize" class="stack-lg">
+  <div class="stage-head">
+    <div class="eyebrow">Stage 01</div>
+    <h2>Empathize</h2>
+    <p class="q">Who struggles with money habits, and what actually happens when they try to fix them?</p>
+  </div>
+
+  <div class="stack">
+    <h3>Planned research</h3>
+    <p class="note">No interviews have been run yet. What follows is the research I would run before the next build — the screener, the guide and the artefacts it would produce — so the assumptions this app rests on can be checked against real people rather than assumed.</p><p>The plan is one-on-one interviews of 30 to 45 minutes with young working professionals and students who have tried at least one budgeting or expense app. The guide asks about past behaviour ("tell me about the last time…") rather than opinions ("would you use…"), because what people did is more reliable than what they say they would do.</p>
+    <div class="grid3">
+      <div class="card"><span class="tag">Who</span><p>Ages 21 to 35, earning or receiving a monthly amount, smartphone-first, paying mostly by UPI or card.</p></div>
+      <div class="card"><span class="tag">Screener</span><p>Has installed an expense or budget app before, and has at least one recurring spend they'd like to reduce.</p></div>
+      <div class="card"><span class="tag">Intended output</span><p>Interview notes grouped by affinity mapping, then used to replace the proto-persona and empathy map below with researched ones.</p></div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>Interview guide</h3>
+    <p class="muted">Grouped by theme. Grey text is a follow-up probe or the reason for asking.</p>
+    <div class="grid2">
+      <div class="panel qgroup">
+        <span class="tag">Warm-up · money today</span>
+        <ol>
+          <li>Walk me through how money comes in and goes out for you in a normal month.</li>
+          <li>How do you know, right now, how much you've spent this week?<i>Tests awareness without prompting.</i></li>
+          <li>What's the last purchase you regretted? What happened just before it?<i>Finds triggers.</i></li>
+        </ol>
+      </div>
+      <div class="panel qgroup">
+        <span class="tag">Past tracking attempts</span>
+        <ol>
+          <li>Tell me about the last time you tried to track expenses. What tool did you use?</li>
+          <li>How long did you keep it up? What made you stop?<i>Core churn question.</i></li>
+          <li>What did you get out of it while you were using it?</li>
+          <li>If you use SMS or bank auto-tracking, do you actually open it? When?</li>
+        </ol>
+      </div>
+      <div class="panel qgroup">
+        <span class="tag">Habits &amp; triggers</span>
+        <ol>
+          <li>Is there something you spend on regularly that you'd like to cut or quit?<i>Smoking, alcohol, delivery, coffee, gaming…</i></li>
+          <li>Roughly how much does that cost you in a week? Have you ever worked it out?</li>
+          <li>Have you tried to cut it before? What helped and what didn't?</li>
+          <li>Does that habit affect anything other than money for you?<i>Probes the health angle.</i></li>
+        </ol>
+      </div>
+      <div class="panel qgroup">
+        <span class="tag">Goals &amp; motivation</span>
+        <ol>
+          <li>What are you saving for right now, if anything? How far along are you?</li>
+          <li>How do you picture yourself when you reach that goal?</li>
+          <li>Which apps do you open every day without thinking? Why those?<i>Streaks, rewards, social loops.</i></li>
+          <li>Have you kept a streak going in any app? What happened when it broke?</li>
+        </ol>
+      </div>
+      <div class="panel qgroup">
+        <span class="tag">Feelings &amp; trust</span>
+        <ol>
+          <li>How do you feel when you check your bank balance at the end of the month?</li>
+          <li>Has an app ever made you feel judged about money? What did it do?</li>
+          <li>How do you feel about a finance app reading your SMS or linking your bank?</li>
+        </ol>
+      </div>
+      <div class="panel qgroup">
+        <span class="tag">Wrap-up</span>
+        <ol>
+          <li>If you had a magic app for your money, what's the one thing it would do?</li>
+          <li>What would make you delete it in the first week?</li>
+          <li>Is there anything I should have asked but didn't?</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>User persona</h3>
+    <p class="note">A proto-persona — built from the problem hypothesis and the target user, not from interviews. Rohan is who the app is designed for, and the first thing the research above would test.</p>
+    <div class="panel persona">
+      <div>
+        <div class="avatar" aria-hidden="true">RK</div>
+        <dl class="facts">
+          <dt>Name</dt><dd>Rohan Kalita</dd>
+          <dt>Age</dt><dd>26</dd>
+          <dt>Work</dt><dd>Software engineer, Bengaluru</dd>
+          <dt>Income</dt><dd>₹85k / month</dd>
+          <dt>Pays by</dt><dd>UPI, credit card</dd>
+          <dt>Tech</dt><dd>iPhone, heavy app user</dd>
+        </dl>
+      </div>
+      <div class="stack">
+        <div class="grid2">
+          <div class="stack" style="gap:8px">
+            <h4>Goals</h4>
+            <ul>
+              <li>Buy a new phone in about 6 months without using EMI</li>
+              <li>Cut down smoking, for his health as much as his wallet</li>
+              <li>Stop reaching the 25th of the month with nothing left</li>
+            </ul>
+          </div>
+          <div class="stack" style="gap:8px">
+            <h4>Frustrations</h4>
+            <ul>
+              <li>Tried two tracker apps; stopped both within 2 weeks</li>
+              <li>Auto-tracking apps show numbers he never acts on</li>
+              <li>Budget apps feel like a lecture after every purchase</li>
+            </ul>
+          </div>
+          <div class="stack" style="gap:8px">
+            <h4>Behaviours</h4>
+            <ul>
+              <li>Orders food delivery 4 to 5 times a week</li>
+              <li>Keeps a 200-day streak in a language app</li>
+              <li>Checks his phone the moment he wakes up</li>
+            </ul>
+          </div>
+          <div class="stack" style="gap:8px">
+            <h4>Needs from an app</h4>
+            <ul>
+              <li>Logging in under 10 seconds</li>
+              <li>A clear "am I okay this week?" signal</li>
+              <li>To see progress, not only spending</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>Empathy map</h3>
+    <p class="note">Also hypothetical — it maps what the proto-persona is assumed to say, think, do and feel. The quotes are written to describe the assumption, not reported from a session.</p>
+    <div class="emap">
+      <div>
+        <span class="tag b">Says</span>
+        <ul>
+          <li>"I'll start saving from next month."</li>
+          <li>"It's only ₹200, it doesn't matter."</li>
+          <li>"I don't have time to log every expense."</li>
+          <li>"I want to quit smoking, seriously this time."</li>
+        </ul>
+      </div>
+      <div>
+        <span class="tag">Thinks</span>
+        <ul>
+          <li>Where did my salary actually go?</li>
+          <li>Small daily spends can't add up to much.</li>
+          <li>Budgeting means giving up everything fun.</li>
+          <li>I'm probably bad with money.</li>
+        </ul>
+      </div>
+      <div>
+        <span class="tag a">Does</span>
+        <ul>
+          <li>Orders delivery when tired after work</li>
+          <li>Installs a tracker, logs for 10 days, stops</li>
+          <li>Checks the bank balance only at month-end</li>
+          <li>Keeps streaks in other apps for months</li>
+        </ul>
+      </div>
+      <div>
+        <span class="tag r">Feels</span>
+        <ul>
+          <li>Guilty and anxious at month-end</li>
+          <li>Judged by apps that show red numbers</li>
+          <li>Proud when he sticks with something</li>
+          <li>Motivated by a clear, near reward</li>
+        </ul>
+      </div>
+      <div class="center" aria-hidden="true">Rohan</div>
+    </div>
+    <div class="pg">
+      <div class="card">
+        <span class="tag r">Pains</span>
+        <ul>
+          <li>Logging takes effort and gives nothing back</li>
+          <li>No link between cutting a habit and reaching a goal</li>
+          <li>Finds out about overspending too late</li>
+          <li>Guilt-based messaging makes him avoid the app</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="tag g">Gains</span>
+        <ul>
+          <li>Sees exactly how much a habit costs per year</li>
+          <li>Watches a goal fill up as he cuts back</li>
+          <li>Gets early warnings while there's time to act</li>
+          <li>Feels progress through streaks and milestones</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEFINE -->
+<section id="define" class="stack-lg">
+  <div class="stage-head">
+    <div class="eyebrow">Stage 02</div>
+    <h2>Define</h2>
+    <p class="q">What is the real problem, and what did we learn about it?</p>
+  </div>
+
+  <div class="stack">
+    <h3>What is the problem?</h3>
+    <p>Expense trackers have a retention problem. They only look backward: the user does the work of entering data, and the app gives back a chart of money that's already gone. There's no reward for today's effort, and the red numbers make people feel bad, so they stop opening the app. Meanwhile the spending that hurts most, small repeated habits like smoking, delivery, and coffee, stays invisible because each purchase looks too small to matter.</p>
+  </div>
+
+  <div class="callout"><small>Problem statement</small>Young earners like Rohan need a way to cut costly daily habits and see the result right away, because tracking past spending alone makes them feel guilty without changing what they do.</div>
+
+  <div class="stack">
+    <h3>What is our understanding?</h3>
+    <div class="grid2">
+      <div class="card"><span class="tag">Insight 1</span><h4>People know their leaks already</h4><p class="muted">Users can name their problem habits without any data. They don't need more charts to discover them; they need a reason to stop.</p></div>
+      <div class="card"><span class="tag">Insight 2</span><h4>Small spends feel harmless</h4><p class="muted">₹200 a day doesn't feel like much. ₹73,000 a year does. Showing the yearly figure changes how people see the habit.</p></div>
+      <div class="card"><span class="tag">Insight 3</span><h4>Streaks already work for them</h4><p class="muted">The same users who quit trackers keep streaks going in fitness and language apps. The daily-streak habit is already there to borrow.</p></div>
+      <div class="card"><span class="tag">Insight 4</span><h4>Shame drives people away</h4><p class="muted">When an app makes users feel judged, they avoid it. Framing things as gains ("you saved ₹340") keeps them coming back.</p></div>
+      <div class="card"><span class="tag">Insight 5</span><h4>Warnings come too late</h4><p class="muted">Month-end summaries arrive after the money is spent. Users want to know on Tuesday that the week is going badly.</p></div>
+      <div class="card"><span class="tag">Insight 6</span><h4>Trust is a precondition</h4><p class="muted">Many users are wary of apps that read SMS or link bank accounts. On-device data and easy export lower that barrier.</p></div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>How might we…</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>How might we</th><th>Answered in the app by</th></tr></thead>
+        <tbody>
+          <tr><td>…make cutting a habit feel like earning, not giving something up?</td><td>Habits show weekly, monthly and yearly savings, with a "you'll save ₹X per year" headline</td></tr>
+          <tr><td>…link today's restraint to a reward people actually want?</td><td>Each clean day automatically adds money to linked goals</td></tr>
+          <tr><td>…make logging fast enough to become automatic?</td><td>Amount field focused on open, category chips, save disabled until the entry is valid</td></tr>
+          <tr><td>…warn people while they can still change course?</td><td>Colour-coded budget ring, burn-rate alert when 75% of the budget is gone in the first 1 to 3 days</td></tr>
+          <tr><td>…give people a reason to open the app every day?</td><td>One-tap clean-day streaks, milestones at 7/14/30/60/100 days</td></tr>
+          <tr><td>…earn trust with money data?</td><td>Everything stored on the device, CSV/JSON export, confirmation before anything is deleted</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- IDEATE -->
+<section id="ideate" class="stack-lg">
+  <div class="stage-head">
+    <div class="eyebrow">Stage 03</div>
+    <h2>Ideate</h2>
+    <p class="q">How are we solving the problem, and what makes our approach different?</p>
+  </div>
+
+  <div class="stack">
+    <h3>How we're solving it</h3>
+    <p>We designed the app around one loop that repeats every day. Every screen exists to keep this loop moving: do something, see the result immediately, feel progress, come back tomorrow.</p>
+    <div class="formula">Bad habit (smoking, delivery, coffee…)
+   │  set current vs. target weekly spend
+   ▼
+Visible SAVINGS   weekly → monthly → yearly
+   │  one tap: "clean day"
+   ├──▶ STREAK grows, milestone gets closer    → motivation
+   └──▶ money auto-added to linked GOALS       → reward
+                 │
+   INSIGHTS show spending and progress          → awareness</div>
+  </div>
+
+  <div class="stack">
+    <h3>Concepts we considered</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Idea</th><th>Impact</th><th>Effort</th><th>Decision</th></tr></thead>
+        <tbody>
+          <tr><td><b>Habit → savings → goal pipeline</b><br><span class="muted">Turn restraint into money for a named goal</span></td><td><span class="tag g">High</span></td><td><span class="tag a">Medium</span></td><td>Core of the app</td></tr>
+          <tr><td><b>One-tap clean-day streaks</b></td><td><span class="tag g">High</span></td><td><span class="tag g">Low</span></td><td>Build first</td></tr>
+          <tr><td><b>Weekly budget ring with colour states</b></td><td><span class="tag g">High</span></td><td><span class="tag g">Low</span></td><td>Build first</td></tr>
+          <tr><td><b>Plain-language insight cards</b></td><td><span class="tag g">High</span></td><td><span class="tag a">Medium</span></td><td>Build</td></tr>
+          <tr><td><b>Fast manual entry sheet</b></td><td><span class="tag g">High</span></td><td><span class="tag g">Low</span></td><td>Build first</td></tr>
+          <tr><td><b>SMS / bank auto-import</b></td><td><span class="tag a">Medium</span></td><td><span class="tag r">High</span></td><td>Deferred. Raises privacy concerns, and passive data doesn't change behaviour</td></tr>
+          <tr><td><b>Social leaderboards</b></td><td><span class="tag a">Medium</span></td><td><span class="tag r">High</span></td><td>Deferred. Money is private for most users</td></tr>
+          <tr><td><b>Points, coins, badges</b></td><td><span class="tag">Low</span></td><td><span class="tag a">Medium</span></td><td>Dropped. Real savings are the reward</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>How SpendWise is different from other apps</h3>
+    <p class="muted">Compared with the three kinds of app our users had already tried.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>What the user gets</th><th>Expense trackers<br>(manual or SMS-based)</th><th>Budgeting apps</th><th>Quit-habit apps</th><th>SpendWise</th></tr></thead>
+        <tbody>
+          <tr><td>Log and categorise spending</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="no">No</td><td class="yes">Yes</td></tr>
+          <tr><td>Weekly budget with early warning</td><td class="no">Sometimes</td><td class="yes">Yes</td><td class="no">No</td><td class="yes">Yes</td></tr>
+          <tr><td>Habit streaks</td><td class="no">No</td><td class="no">No</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+          <tr><td>Savings from cutting a habit, shown per year</td><td class="no">No</td><td class="no">No</td><td class="no">Sometimes</td><td class="yes">Yes</td></tr>
+          <tr><td>Savings automatically sent to goals</td><td class="no">No</td><td class="no">Manual</td><td class="no">No</td><td class="yes">Yes</td></tr>
+          <tr><td>Advice written as sentences, positive first</td><td class="no">Charts</td><td class="no">Rules</td><td class="no">Health stats</td><td class="yes">Yes</td></tr>
+          <tr><td>No account or bank link needed</td><td class="no">Often needs SMS access</td><td class="no">Often needs sign-up</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid3">
+      <div class="card"><h4>It looks forward</h4><p class="muted">Other trackers show what you spent. SpendWise shows what you're saving and when you'll reach your goal.</p></div>
+      <div class="card"><h4>One tap, two wins</h4><p class="muted">Marking a clean day grows your streak and your goal at the same time.</p></div>
+      <div class="card"><h4>Money and health together</h4><p class="muted">The default habits (smoking, alcohol, delivery, coffee, soft drinks) cost health as well as money, so each clean day counts twice.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROTOTYPE -->
+<section id="prototype" class="stack-lg">
+  <div class="stage-head">
+    <div class="eyebrow">Stage 04</div>
+    <h2>Prototype</h2>
+    <p class="q">How does the app work, screen by screen?</p>
+  </div>
+
+  <div class="stack">
+    <h3>Design principles</h3>
+    <div class="grid3">
+      <div class="card"><h4>Instant feedback</h4><p class="muted">Haptics on every save, numbers that roll to their new value, spring animations that show what changed.</p></div>
+      <div class="card"><h4>Colour means status</h4><p class="muted">Green, amber, red by budget use. Each category keeps one colour and icon everywhere.</p>
+        <div class="ring-demo"><span><i style="background:#22C55E"></i>&lt; 60%</span><span><i style="background:#F59E0B"></i>&lt; 85%</span><span><i style="background:#EF4444"></i>85%+</span></div></div>
+      <div class="card"><h4>One hero number</h4><p class="muted">Each screen leads with a single large figure. Details sit one tap deeper.</p></div>
+      <div class="card"><h4>No blank screens</h4><p class="muted">Every empty state offers a next step, such as "Set your first budget".</p></div>
+      <div class="card"><h4>Safe to explore</h4><p class="muted">Deleting asks for confirmation. Reset and factory reset each take two steps.</p></div>
+      <div class="card"><h4>Warm, calm visuals</h4><p class="muted">A custom "Glass" design system with rounded type, soft cards and emerald accents, so money feels less intimidating.</p></div>
+    </div>
+  </div>
+
+  <section id="flow" class="stack">
+    <h3>App flow</h3>
+    <p class="muted">Five tabs, each for a different intention. Each tab keeps its own navigation, so switching tabs doesn't lose your place.</p>
+    <div class="flow-wrap">
+      <div class="flow">
+        <div class="node">Splash<small>Animated brand, adapts to light/dark</small></div>
+        <div class="vline"></div>
+        <div class="node dash">Onboarding<small>First launch only · privacy &amp; terms</small></div>
+        <div class="vline"></div>
+        <div class="node dark">Tab bar<small>5 tabs, each with its own navigation stack</small></div>
+        <div class="branch">
+          <div class="col">
+            <div class="node tab">Dashboard<small>How am I doing now?</small></div>
+            <div class="leaf">Weekly budget ring</div>
+            <div class="leaf">Week / Month / Custom stats</div>
+            <div class="leaf">Insight banner</div>
+            <div class="leaf">Today's expenses</div>
+            <div class="leaf">Budget settings</div>
+          </div>
+          <div class="col">
+            <div class="node tab">History<small>Where did it go?</small></div>
+            <div class="leaf">Today / Yesterday / Week / Older</div>
+            <div class="leaf">Search + category filter</div>
+            <div class="leaf">Edit expense</div>
+            <div class="leaf">Delete with confirmation</div>
+          </div>
+          <div class="col">
+            <div class="node tab">Avoid &amp; Save<small>Change my habits</small></div>
+            <div class="leaf">Habits → habit detail</div>
+            <div class="leaf">Goals → goal detail</div>
+            <div class="leaf">Create habit / goal</div>
+            <div class="leaf">Add contribution</div>
+          </div>
+          <div class="col">
+            <div class="node tab">Insights<small>Help me understand</small></div>
+            <div class="leaf">Week / 30 days / All time</div>
+            <div class="leaf">Insight cards</div>
+            <div class="leaf">Weekly summary</div>
+            <div class="leaf">Monthly summary</div>
+          </div>
+          <div class="col">
+            <div class="node tab">Settings<small>Make it mine</small></div>
+            <div class="leaf">Week start, currency</div>
+            <div class="leaf">Manage categories</div>
+            <div class="leaf">Export / Import</div>
+            <div class="leaf">Reset, factory reset</div>
+          </div>
+        </div>
+        <div class="fab-row"><span class="node" style="padding:6px 12px">+ button on Dashboard</span> opens <span class="leaf">Add expense</span><span class="leaf">New habit</span><span class="leaf">New goal</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="stack">
+    <h3>What each tab gives the user</h3>
+    <div class="ftabs" role="tablist" aria-label="App tabs">
+      <button role="tab" id="t-dash" aria-controls="p-dash" aria-selected="true">Dashboard</button>
+      <button role="tab" id="t-hist" aria-controls="p-hist" aria-selected="false">History</button>
+      <button role="tab" id="t-avoid" aria-controls="p-avoid" aria-selected="false">Avoid &amp; Save</button>
+      <button role="tab" id="t-ins" aria-controls="p-ins" aria-selected="false">Insights</button>
+      <button role="tab" id="t-set" aria-controls="p-set" aria-selected="false">Settings</button>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-dash" aria-labelledby="t-dash">
+      <div class="fpanel">
+        <div class="stack">
+          <h4>Dashboard: your daily control centre</h4>
+          <p class="muted">The home screen. It answers "am I okay this week?" in under a second and puts the next action one tap away.</p>
+          <ul class="feat">
+            <li><span><b>Weekly budget ring</b>Shows spent out of budget with a percentage badge. The ring turns green, amber or red as you use more of it.</span></li>
+            <li><span><b>Remaining and daily allowance</b>"You have ₹X left" becomes "you can spend ₹Y today" (remaining ÷ days left in the week).</span></li>
+            <li><span><b>This Week / This Month / Custom</b>Recalculates total, number of transactions and daily average for the chosen period. A note explains the ring always tracks the current week.</span></li>
+            <li><span><b>Insight banner</b>The single most important thing to know today, tinted by how urgent it is.</span></li>
+            <li><span><b>Today's expenses</b>The most relevant items stay in view.</span></li>
+            <li><span><b>Last-week summary shortcut</b>Appears on the first day of the week to encourage a weekly review.</span></li>
+            <li><span><b>Expandable + button</b>Add expense, habit or goal. It stays disabled until you set a budget, which guides new users to the one step that unlocks everything else.</span></li>
+          </ul>
+        </div>
+        <div class="why">
+          <span class="tag g">Why it works</span>
+          <p>A glance at the ring colour tells you where you stand. The daily allowance turns a vague number into something you can act on today.</p>
+          <p class="muted">New users see a "Set your first budget" prompt instead of an empty ring.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-hist" aria-labelledby="t-hist" hidden>
+      <div class="fpanel">
+        <div class="stack">
+          <h4>History: every expense, easy to find</h4>
+          <p class="muted">The full record. It's kept separate from the Dashboard so each screen does one job.</p>
+          <ul class="feat">
+            <li><span><b>Grouped by time</b>Today, Yesterday, This Week and Older, each with its own subtotal.</span></li>
+            <li><span><b>Summary strip</b>Count, total and top category before you start scrolling.</span></li>
+            <li><span><b>Search</b>Across notes, categories and amounts.</span></li>
+            <li><span><b>Category filter chips</b>A horizontal strip for narrowing the list.</span></li>
+            <li><span><b>Readable times</b>"Today 4:30 PM", "Yesterday 9:15 AM", otherwise weekday or date.</span></li>
+            <li><span><b>Edit and delete</b>Tap to edit. Swipe to delete quickly, or use the context menu with a confirmation.</span></li>
+            <li><span><b>Two empty states</b>A welcome message on first use, and "No matches" with a Clear filters button when a filter hides everything.</span></li>
+          </ul>
+        </div>
+        <div class="why">
+          <span class="tag g">Why it works</span>
+          <p>Grouping matches how people think about recent spending. Search and filters reassure users that nothing is lost.</p>
+          <p class="muted">A filtered list with no results never looks broken, because it always offers a way back.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-avoid" aria-labelledby="t-avoid" hidden>
+      <div class="fpanel">
+        <div class="stack">
+          <h4>Avoid &amp; Save: where behaviour changes</h4>
+          <p class="muted">Two parts, Habits and Goals, switched with a segmented control. The + button adapts to whichever part is open.</p>
+          <ul class="feat">
+            <li><span><b>Habits headline</b>Your total yearly savings potential, shown large ("₹X per year").</span></li>
+            <li><span><b>Quit or Reduce</b>Set current and target weekly spend. Quit means a target of zero.</span></li>
+            <li><span><b>Habit cards</b>Name, current streak, weekly savings and a one-tap "mark clean day" button that becomes a filled checkmark once marked.</span></li>
+            <li><span><b>Habit detail</b>Current and longest streak, total saved, milestone ring (7/14/30/60/100 days) and days to the next milestone.</span></li>
+            <li><span><b>Goals headline</b>Total saved toward all goals, with an overall progress bar.</span></li>
+            <li><span><b>Goal cards</b>Icon, estimated completion, progress percentage and current vs. target amount.</span></li>
+            <li><span><b>Goal detail</b>Contribution history (from streaks or manual) and an "add contribution" action.</span></li>
+            <li><span><b>Presets</b>Smoking, Alcohol, Food Delivery, Coffee, Soft Drinks and more; goals like New Phone, Laptop, Vacation, Emergency Fund.</span></li>
+          </ul>
+        </div>
+        <div class="why">
+          <span class="tag g">Why it works</span>
+          <p>The first thing you see is what you gain, not what you lose. One tap moves both your streak and your goal.</p>
+          <div class="formula" style="font-size:.78rem">weekly  = current − target
+monthly = weekly × 4.33
+yearly  = weekly × 52
+per clean day = weekly ÷ 7</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-ins" aria-labelledby="t-ins" hidden>
+      <div class="fpanel">
+        <div class="stack">
+          <h4>Insights: data turned into advice</h4>
+          <p class="muted">A range picker (This Week, 30 Days, All Time) recalculates everything on the screen.</p>
+          <ul class="feat">
+            <li><span><b>Summary card</b>Total spend for the range and the top category with its share.</span></li>
+            <li><span><b>Insight cards</b>Written as sentences and ordered by urgency, warnings first.</span></li>
+            <li><span><b>Category breakdown</b>Spend per category, sorted, each with its share.</span></li>
+            <li><span><b>14-day trend chart</b>Spot spikes and patterns.</span></li>
+            <li><span><b>This week vs. last week</b>Totals and per-category changes.</span></li>
+            <li><span><b>Spent vs. saved</b>Money spent, potential savings and actual savings side by side.</span></li>
+            <li><span><b>Weekly and monthly summaries</b>Budget, spent, remaining, highest expense, savings and goal progress, with previous-month navigation.</span></li>
+          </ul>
+        </div>
+        <div class="why">
+          <span class="tag g">Insight triggers</span>
+          <p><span class="tag r">Warning</span> Burn rate: 75% of the weekly budget used in the first 1 to 3 days</p>
+          <p><span class="tag a">Info</span> One category is over 40% of the week, or up 25% on last week</p>
+          <p><span class="tag b">Info</span> A habit could save ₹2,000 or more a month</p>
+          <p><span class="tag g">Positive</span> Goal ETA, or a streak milestone reached</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-set" aria-labelledby="t-set" hidden>
+      <div class="fpanel">
+        <div class="stack">
+          <h4>Settings: make it yours, keep control</h4>
+          <ul class="feat">
+            <li><span><b>Start of week</b>Sunday, Monday (default) or Saturday. Changes every weekly calculation in the app.</span></li>
+            <li><span><b>Currency</b>INR, USD, EUR, GBP, JPY, SGD, AED, with the right symbols and formats.</span></li>
+            <li><span><b>Manage categories</b>Eight defaults you can adjust.</span></li>
+            <li><span><b>Export and import</b>CSV or JSON export, JSON import.</span></li>
+            <li><span><b>Reset all data</b>Clears expenses, habits and goals but keeps preferences. Two-step confirmation.</span></li>
+            <li><span><b>Factory reset</b>Clears everything and restarts onboarding. Two-step confirmation.</span></li>
+            <li><span><b>About</b>Version, privacy policy, terms.</span></li>
+          </ul>
+        </div>
+        <div class="why">
+          <span class="tag g">Why it works</span>
+          <p>Correct currency and week start make users trust the numbers. Export means their data is theirs to take anywhere.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="walkthrough" class="stack">
+    <h3>Walkthrough: Rohan's first week</h3>
+    <p class="muted">One scenario that touches every tab.</p>
+    <div class="walk">
+      <div class="step" data-t="1"><span class="when">Day 1 · 9:00 PM</span><h4>Opens the app for the first time</h4><p>The splash animation plays, then a short onboarding carousel explains the idea and links to the privacy policy. He lands on the Dashboard.</p><span class="screen">Splash → Onboarding → Dashboard</span></div>
+      <div class="step" data-t="2"><span class="when">Day 1 · 9:02 PM</span><h4>Sets a weekly budget</h4><p>The ring area says "Set your first budget" and the + button is dimmed. He sets ₹5,000 a week. The ring appears in green and the + button becomes active.</p><span class="screen">Dashboard → Budget settings</span></div>
+      <div class="step" data-t="3"><span class="when">Day 1 · 9:05 PM</span><h4>Creates a habit and a goal</h4><p>From the + button he adds "Smoking" as a Quit habit (₹1,400 a week now, target ₹0). The headline shows about ₹72,800 a year. He adds a "New Phone" goal of ₹60,000 and links the habit to it. The goal shows an estimated completion date.</p><span class="screen">Avoid &amp; Save → Habits / Goals</span></div>
+      <div class="step" data-t="4"><span class="when">Day 2 · 1:30 PM</span><h4>Logs lunch in a few seconds</h4><p>Taps + then Add expense. The amount field is already focused with the number pad open. He types 280, taps the Food chip and saves. A haptic confirms it and the ring updates.</p><span class="screen">+ → Add expense sheet</span></div>
+      <div class="step" data-t="5"><span class="when">Day 2 · 10:00 PM</span><h4>Marks a clean day</h4><p>No cigarettes today. One tap on the habit card: the streak shows 1 day, and ₹200 goes to the New Phone goal.</p><span class="screen">Avoid &amp; Save → Habit card</span></div>
+      <div class="step" data-t="6"><span class="when">Day 3 · 8:00 AM</span><h4>Gets an early warning</h4><p>Two big delivery orders have used 78% of the week's budget. The ring is red and the insight banner warns him about the pace. He cooks at home that evening.</p><span class="screen">Dashboard → Insight banner</span></div>
+      <div class="step" data-t="7"><span class="when">Day 5</span><h4>Checks where the money went</h4><p>Searches History for "Swiggy" and sees the delivery total for the week. Food is his top category.</p><span class="screen">History → Search + filter</span></div>
+      <div class="step" data-t="8"><span class="when">Day 8 · Monday</span><h4>Weekly review</h4><p>A last-week summary shortcut appears on the Dashboard. In Insights he sees food spending was 40% of the week, along with a positive card: his 7-day streak reached its first milestone.</p><span class="screen">Dashboard → Insights → Weekly summary</span></div>
+    </div>
+  </section>
+</section>
+
+<!-- SCREENS -->
+<section id="screens" class="stack-lg">
+  <div class="stage-head">
+    <div class="eyebrow">Stage 05</div>
+    <h2>The screens</h2>
+    <p class="q">What did it end up looking like, built and running?</p>
+  </div>
+
+  <p>SpendWise is built and running in SwiftUI, so these are screenshots from the app on a device — not mockups. Twenty screens, grouped by the tab they belong to.</p>
+
+    <div class="stack">
+      <h3>Onboarding</h3>
+      <p class="muted">Three cards, then out of the way. First launch only.</p>
+      <div class="shots">
+        <figure class="shot"><img src="assets/screen-01.jpg" alt="SpendWise Track your weekly spend" width="462" height="1000" loading="lazy"><figcaption>Track your weekly spend</figcaption></figure>
+        <figure class="shot"><img src="assets/screen-02.jpg" alt="SpendWise Quit habits, watch savings grow" width="462" height="1000" loading="lazy"><figcaption>Quit habits, watch savings grow</figcaption></figure>
+        <figure class="shot"><img src="assets/screen-03.jpg" alt="SpendWise All offline — yours alone" width="462" height="1000" loading="lazy"><figcaption>All offline — yours alone</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="stack">
+      <h3>Dashboard</h3>
+      <p class="muted">Am I okay this week? The ring answers it before you read anything.</p>
+      <div class="shots">
+        <figure class="shot"><img src="assets/screen-04.jpg" alt="SpendWise Empty state — set your first budget" width="462" height="1000" loading="lazy"><figcaption>Empty state — set your first budget</figcaption></figure>
+        <figure class="shot"><img src="assets/screen-05.jpg" alt="SpendWise Budget ring, week / month / custom" width="462" height="1000" loading="lazy"><figcaption>Budget ring, week / month / custom</figcaption></figure>
+        <figure class="shot"><img src="assets/screen-06.jpg" alt="SpendWise Custom range picker" width="462" height="1000" loading="lazy"><figcaption>Custom range picker</figcaption></figure>
+        <figure class="shot"><img src="assets/screen-07.jpg" alt="SpendWise Expandable + — expense, habit or goal" width="462" height="1000" loading="lazy"><figcaption>Expandable + — expense, habit or goal</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="stack">
+      <h3>Avoid &amp; Save</h3>
+      <p class="muted">Where restraint turns into money. The headline is what you gain, not what you give up.</p>
+      <div class="shots">
+        <figure class="shot"><img src="assets/screen-09.jpg" alt="SpendWise Habits — ₹72,800 a year at stake" width="462" height="1000" loading="lazy"><figcaption>Habits — ₹72,800 a year at stake</figcaption></figure>
+        <figure class="shot"><img src="assets/screen-08.jpg" alt="SpendWise Creating a goal, with a deadline" width="462" height="1000" loading="lazy"><figcaption>Creating a goal, with a deadline</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="stack">
+      <h3>Insights</h3>
+      <p class="muted">One screen, top to bottom: the number, the advice, then the evidence.</p>
+      <div class="shots">
+        <figure class="shot"><img src="assets/screen-10.jpg" alt="SpendWise Range picker and insight cards" width="462" height="1000" loading="lazy"><figcaption>Range picker and insight cards</figcaption></figure>
+        <figure class="shot"><img src="assets/screen-15.jpg" alt="SpendWise Weekly and monthly toggles" width="462" height="1000" loading="lazy"><figcaption>Weekly and monthly toggles</figcaption></figure>
+        <figure class="shot"><img src="assets/screen-11.jpg" alt="SpendWise Category breakdown" width="462" height="1000" loading="lazy"><figcaption>Category breakdown</figcaption></figure>
+        <figure class="shot"><img src="assets/screen-12.jpg" alt="SpendWise Breakdown with legend" width="462" height="1000" loading="lazy"><figcaption>Breakdown with legend</figcaption></figure>
+        <figure class="shot"><img src="assets/screen-13.jpg" alt="SpendWise 14-day trend" width="462" height="1000" loading="lazy"><figcaption>14-day trend</figcaption></figure>
+        <figure class="shot"><img src="assets/screen-14.jpg" alt="SpendWise This week vs last, spent vs saved" width="462" height="1000" loading="lazy"><figcaption>This week vs last, spent vs saved</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="stack">
+      <h3>Summaries</h3>
+      <p class="muted">The weekly and monthly reviews the Dashboard links out to.</p>
+      <div class="shots">
+        <figure class="shot"><img src="assets/screen-17.jpg" alt="SpendWise This week — 27 Sep to 3 Oct" width="462" height="1000" loading="lazy"><figcaption>This week — 27 Sep to 3 Oct</figcaption></figure>
+        <figure class="shot"><img src="assets/screen-18.jpg" alt="SpendWise Highest expense and savings potential" width="462" height="1000" loading="lazy"><figcaption>Highest expense and savings potential</figcaption></figure>
+        <figure class="shot"><img src="assets/screen-16.jpg" alt="SpendWise Monthly summary" width="462" height="1000" loading="lazy"><figcaption>Monthly summary</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="stack">
+      <h3>Settings</h3>
+      <p class="muted">Week start, currency and an exit door for your data.</p>
+      <div class="shots">
+        <figure class="shot"><img src="assets/screen-19.jpg" alt="SpendWise Preferences, export, reset" width="462" height="1000" loading="lazy"><figcaption>Preferences, export, reset</figcaption></figure>
+        <figure class="shot"><img src="assets/screen-20.jpg" alt="SpendWise Seven currencies" width="462" height="1000" loading="lazy"><figcaption>Seven currencies</figcaption></figure>
+      </div>
+    </div>
+
+</section>
+
+<!-- WHAT CHANGED -->
+<section id="iterate" class="stack-lg">
+  <div class="stage-head">
+    <div class="eyebrow">Stage 06</div>
+    <h2>What changed, and what's next</h2>
+    <p class="q">What did building it teach me, and where would it go?</p>
+  </div>
+
+  <div class="stack">
+    <h3>Iterations so far</h3>
+    <p class="muted">Changes already made from reviewing the built app.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>What we noticed</th><th>What we changed</th></tr></thead>
+        <tbody>
+          <tr><td>The brand mark didn't read well in dark mode</td><td>Made the splash and brand marks adapt to the theme</td></tr>
+          <tr><td>Users had no way to start over completely</td><td>Added Factory reset, separate from Reset all data, both with two-step confirmation</td></tr>
+          <tr><td>Onboarding felt rough and ignored Reduce Motion</td><td>Polished the carousel and made animations fall back to simple states</td></tr>
+          <tr><td>The About section in Settings had layout issues</td><td>Fixed the About section UI</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>What's next</h3>
+    <div class="grid3">
+      <div class="card"><h4>Home-screen widget</h4><p class="muted">Budget ring and one-tap clean day without opening the app.</p></div>
+      <div class="card"><h4>Evening reminder</h4><p class="muted">A gentle nudge to mark the day before the streak is at risk.</p></div>
+      <div class="card"><h4>Streak recovery</h4><p class="muted">A kinder response to a missed day, so one slip doesn't end the habit.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>SpendWise · spend less on what hurts, save more toward what matters.</footer>
+</main>
+</div>
+
+<script>
+(function(){
+  var tabs=[].slice.call(document.querySelectorAll('.ftabs [role="tab"]'));
+  function select(t){
+    tabs.forEach(function(b){
+      var on=b===t;
+      b.setAttribute('aria-selected',on?'true':'false');
+      b.tabIndex=on?0:-1;
+      document.getElementById(b.getAttribute('aria-controls')).hidden=!on;
+    });
+  }
+  tabs.forEach(function(b,i){
+    b.tabIndex=i===0?0:-1;
+    b.addEventListener('click',function(){select(b)});
+    b.addEventListener('keydown',function(e){
+      var d=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;
+      if(!d)return;
+      var n=tabs[(i+d+tabs.length)%tabs.length];select(n);n.focus();e.preventDefault();
+    });
+  });
+})();
+</script>

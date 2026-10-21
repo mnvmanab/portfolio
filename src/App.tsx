@@ -6,10 +6,12 @@ import ProjectsPaperSection from './components/sections/ProjectsPaperSection'
 // import BeforeAfterPaperSection from './components/sections/BeforeAfterPaperSection' // hidden for now
 import ContactSection from './components/sections/ContactSection'
 import TutorMePage from './pages/TutorMePage'
+import SpendWisePage from './pages/SpendWisePage'
+import EmployeeEngagementPage from './pages/EmployeeEngagementPage'
 
 /**
  * Single-page portfolio with a tiny hash-based router for case studies.
- * `#/tutorme` → the Tutor Me case-study view; anything else → the portfolio.
+ * `#/tutorme` and `#/spendwise` → case-study views; anything else → the portfolio.
  *
  * A dependency-free `useHashRoute` keeps this in sync with browser
  * back/forward and lets case-study URLs be shared and bookmarked.
@@ -37,6 +39,12 @@ export default function App() {
   // below don't render, so their global styles can't leak in.
   if (hash === '#/tutorme') {
     return <TutorMePage />
+  }
+  if (hash === '#/spendwise') {
+    return <SpendWisePage />
+  }
+  if (hash === '#/engagement') {
+    return <EmployeeEngagementPage />
   }
 
   // Every live section is paper now — a dark page background would only show

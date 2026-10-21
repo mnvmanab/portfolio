@@ -128,21 +128,37 @@ function ProjectCard({ item }: { item: Project }) {
           1742 × 2165 → aspect 1742 / 2165. Locking the aspect (instead of
           filling the flex parent's variable height) makes exactly 60% of
           the image show in every viewport, not just at 640-px card height.
+          A card can override this with `slotRatio`.
           `items-end` keeps the slot flush to the card's bottom edge. */}
       <div className="relative flex min-h-0 flex-1 items-end justify-center px-7 sm:px-9 lg:px-11">
         <div
-          className="mx-auto w-full max-w-[296px] overflow-hidden rounded-t-[26px]"
-          style={{
-            aspectRatio: '1742 / 2165',
-            background: 'rgba(20,17,14,.06)',
-          }}
+          className={
+            item.slotShape === 'landscape'
+              ? 'mx-auto w-full max-w-[560px] overflow-hidden rounded-[18px]'
+              : 'mx-auto w-full max-w-[296px] overflow-hidden rounded-t-[26px]'
+          }
+          style={
+            item.slotShape === 'landscape'
+              ? // Match the artwork's own aspect so nothing is cropped. No tint:
+                // a transparent export floats on the card, a solid one fills
+                // the rounded box.
+                { aspectRatio: item.slotRatio ?? '2000 / 1116' }
+              : {
+                  aspectRatio: item.slotRatio ?? '1742 / 2165',
+                  background: 'rgba(20,17,14,.06)',
+                }
+          }
         >
           {item.src ? (
             <img
               src={item.src}
               alt={item.title}
               loading="lazy"
-              className="h-full w-full object-cover object-top"
+              className={`h-full w-full ${
+                item.fit === 'contain' || item.slotShape === 'landscape'
+                  ? 'object-contain'
+                  : 'object-cover object-top'
+              }`}
             />
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-2">
