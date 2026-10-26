@@ -71,6 +71,50 @@ type Task = {
    * `videoSrc` is set; `eyebrow` defaults to "In motion".
    */
   videoCopy?: { eyebrow?: string; heading: string; body: string }
+  /**
+   * Optional wide/landscape image to use for the AFTER slot — e.g., a
+   * before vs after comparison panel. When present, the task renders this
+   * instead of the AFTER phone row (the `afterFlow` array is ignored for
+   * display, but kept in data). "What I changed" stacks below the image
+   * rather than sitting beside it.
+   */
+  afterImage?: string
+  afterImageCaption?: string
+  /**
+   * Observations about how real teammates used the old flow. Renders as a
+   * quiet block right after the Problem section. These are informal notes,
+   * not formal usability-test findings — keep the voice honest ("I noticed",
+   * "teammates often") rather than quantitative.
+   */
+  usabilityNotes?: {
+    heading?: string
+    notes: string[]
+  }
+  /**
+   * Design decisions that bent under real-world constraints — timeline, dev
+   * capacity, scope, exec feedback. Renders between the Why rationale and
+   * the Benefit chips. Each card lists: what I wanted, what shipped, why
+   * the gap exists, and when (if ever) it gets revisited.
+   */
+  tradeOffs?: {
+    heading?: string
+    items: {
+      wanted: string
+      shipped: string
+      reason: string
+      deferred?: string
+    }[]
+  }
+  /**
+   * Optional projected metrics — explicitly marked as EXPECTED, not measured.
+   * Renders as a dashed-bordered block after the Benefit chips. Use only
+   * for forecasts tied to the design decisions above; swap in real numbers
+   * once post-ship analytics are in and remove the "expected" framing then.
+   */
+  expectedImpact?: {
+    metrics: { label: string; before: string; after: string; context?: string }[]
+    note?: string
+  }
 }
 
 const TASKS: Task[] = [
@@ -151,11 +195,41 @@ const TASKS: Task[] = [
     rationale:
       'Recognition is emotional, and the old form made it clerical \u2014 every field pushed you somewhere else, and a blank message box asked for a sentence most people did not want to compose at their desk. Bringing the fields home fixed the mechanics. Voice fixed the harder part, which was the blank page. The preview step was added back deliberately: once the app drafts something that goes out organization-wide, the person whose name is on it should read it first.',
     benefits: [
+      { k: 'Screens', v: '5 \u2192 1' },
       { k: 'Forced popups', v: '2 \u2192 0' },
       { k: 'Fastest path', v: '7 taps \u2192 4' },
       { k: 'Writing it', v: 'Type it \u2192 speak it' },
       { k: 'Blocked state', v: 'Unexplained \u2192 named' },
     ],
+    usabilityNotes: {
+      notes: [
+        'Teammates who wanted to shorten a message after writing it had to re-open the full-screen editor \u2014 which also meant tapping Save Changes again, every time.',
+        'The Hashtags popup said \u201cMaximum selection: 3\u201d but drew single-select circles. I watched more than one person tap three circles one at a time, waiting for each to confirm, before giving up.',
+        'Visibility defaulted to \u201cShared\u201d and nobody in the sessions I observed changed it \u2014 the Change button and the modal added two taps for a decision nobody actually made.',
+      ],
+    },
+    tradeOffs: {
+      items: [
+        {
+          wanted:
+            'Suggested messages that adapt to who you\u2019re recognizing \u2014 for a developer who just shipped something, suggestions like \u201cThanks for shipping the auth refactor,\u201d not generic \u201cThank you for being a team player.\u201d',
+          shipped:
+            '5 generic suggested messages. Same list for every recognition, every person, every award.',
+          reason:
+            'A smart suggestion engine needs backend work \u2014 pulling the recipient\u2019s info, their recent activity, maybe an AI model to phrase the suggestion. The backend team was already locked on other sprint commitments. Waiting for their time would have stalled the whole recognize-flow redesign for a quarter.',
+          deferred: 'v2, when the backend has capacity.',
+        },
+        {
+          wanted:
+            'Full voice capture \u2014 say \u201cThanks Shaan and Priya for finishing the Q3 report\u201d out loud, and the app drafts the message AND tags Shaan and Priya as the recipients.',
+          shipped:
+            'Voice drafts the message. Recipients still have to be tagged manually at the top of the compose screen.',
+          reason:
+            'In testing, the voice system kept mishearing Indian names \u2014 \u201cSean\u201d instead of \u201cShaan,\u201d or missing names entirely. Tagging the wrong teammate on a kudos post that goes org-wide is embarrassing in a way the product can\u2019t afford. Safer to keep tagging manual.',
+          deferred: 'Revisit when the speech framework gets better at Indian names \u2014 likely iOS 18 or later.',
+        },
+      ],
+    },
     videoSrc: '/engagement/assets/vc.mp4',
     videoCopy: {
       eyebrow: 'In motion',
@@ -163,9 +237,109 @@ const TASKS: Task[] = [
       body:
         'Recipients at the top. Hashtags as chips, not a popup. The message field, or one tap on the microphone to draft it from your voice. The hardest part of recognition — sitting in front of a blank text box — becomes the easiest.',
     },
+    expectedImpact: {
+      metrics: [
+        {
+          label: '90-day retention',
+          before: 'X%',
+          after: 'Y%',
+          context:
+            'A friction-free recognition flow (7 taps → 4, voice to draft the message) means more kudos sent — which means more kudos received, which pulls teammates back for the reciprocity loop that powers retention.',
+        },
+      ],
+      note: 'Not measured. Forecast based on the design levers above — a shorter recognition flow and voice-drafted messages feeding the reciprocity loop that drives return visits. Replace the placeholder values with real figures once 90 days of post-ship analytics are in.',
+    },
   },
   {
     number: '02',
+    title: 'Redesigning the top navigation of the R&R app',
+    why:
+      "I rebuilt the app's top nav from a decorative center-logo strip into a right-weighted action header — notifications pulled out of the bottom bar, wallet turned into a tappable pill, and the whole thing shipped as one reusable component for Vantage Circle, Vantage Fit, and client-branded versions. What I looked at before changing it: how consumer apps like LinkedIn, Slack and Instagram place the account and alerts; Apple's Human Interface Guidelines on tap targets; and the team's own observations about how people were (and weren't) using the old header.",
+    beforeFlow: [
+      {
+        label: 'Old header',
+        note:
+          'Avatar on the left, company logo centered, wallet right as a plain label. Notifications live in the bottom nav, not here.',
+        src: '/engagement/assets/header-before.png',
+      },
+    ],
+    problem: [
+      'The three elements — avatar, logo, wallet — belong to different mental categories (identity, brand, data), so the user has to re-sort them on every screen load.',
+      'The wallet looks like a status label, not a button — no pill, no outline, no shadow — so most users never try tapping it.',
+      "Notifications don't live in the header at all; they're buried in the bottom nav, far from where attention lands on app open — so the whole re-engagement loop (kudos received, points credited, reward available) runs late or gets missed.",
+      'The two highest-value spots in the entire app — top-left and top-center of a header seen every session — are spent on decoration (avatar, brand logo), not on actions the user needs.',
+      "A wallet styled as plain text suppresses the ownership feeling users form over points they've earned; points feel abstract instead of personal, and users forget to go spend them.",
+      'The brand-centered layout reads as enterprise software — the "logo in the middle" pattern consumer apps have left behind — which anchors the user\'s emotional investment at tolerance, not loyalty.',
+      "Problem statement — the old header is organised around the company, not the user. The brand gets the center, the avatar gets the hard-to-reach corner, notifications don't appear at all, and the wallet is styled as information instead of value the user owns. Result: lower re-engagement, lower redemption, lower loyalty.",
+    ],
+    afterFlow: [
+      {
+        label: 'Vantage Fit',
+        note: "Fit's logo on the left. Wallet pill, bell and avatar grouped on the right.",
+        // src: '/engagement/assets/header-after-fit.png',
+      },
+      {
+        label: 'Vantage Circle',
+        note: 'Same shell, different brand mark. Circle on the left, same right-side cluster.',
+        // src: '/engagement/assets/header-after-circle.png',
+      },
+      {
+        label: 'Client-branded',
+        note:
+          'Flexible logo slot takes any client mark. The chevron inside the wallet pill here is a design exploration for a future multi-wallet feature — not shipped yet (the backend doesn’t support it).',
+        // src: '/engagement/assets/header-after-client.png',
+      },
+    ],
+    changes: [
+      'The three right-side elements now share one visual family — same grey chip, same corner of the screen, same tap-rhythm — so the header parses as "brand on the left, me on the right" in a single glance. No more re-sorting on every screen load.',
+      "The wallet is now a filled pill — grey chip, visible icon, bold number, clearly pressable. Users don't miss it, and they don't miss at it either.",
+      'Notifications sit in the header with a red count badge — in the exact spot the eye lands on app open. The re-engagement loop (kudos received, points credited, reward available) fires in the first second of a session instead of hours later or never.',
+      "The wallet pill makes the balance feel like a thing you own. Points live in a chip you can see every session and tap in a moment — personal, present, pressable. The ownership feeling that was flattened by plain text is restored. Users don't forget their balance exists.",
+      'The layout reads as a consumer app, not an enterprise portal. Brand small-left, actions clustered right — the muscle memory users bring from LinkedIn, Slack and Instagram. The emotional register shifts from "corporate tool my employer makes me use" to "an app I open." Loyalty gets a surface it can land on.',
+      "Overall result — the header is now organised around the user, not the company. The brand gets a quiet left-side credit; the user's identity, actions and accumulated value all cluster on the thumb-reach right. Notifications are visible on open, the wallet looks and feels like value owned, and one component — slotted at the logo — scales across every product and client without a rebuild.",
+    ],
+    rationale:
+      "Three psychology levers, three revenue outcomes. The wallet pill makes points feel owned, not forgotten — ownership psychology drives redemption, which is the only act in the app that converts accumulated points into perceived product value. The bell badge pulls the recognition-reciprocity loop into the first-second-of-session attention zone — fast reciprocity is the engagement engine of an R&R app, and delayed notifications are the quietest form of churn. The consumer-app layout (brand small-left, actions right) swaps the user's emotional register from “corporate tool my employer makes me use” to “an app I open” — the gap between tolerance and loyalty, and the gap between a redemption rate that looks like compliance and one that looks like adoption.",
+    benefits: [
+      { k: 'Layout', v: 'Logo center → logo left' },
+      { k: 'Notifications', v: 'Bottom nav → header' },
+      { k: 'Wallet', v: 'Plain label → pill button' },
+      { k: 'Scalability', v: 'Per-product build → one slotted component' },
+    ],
+    afterImage: '/engagement/assets/header-after.png',
+    afterImageCaption:
+      'Before: avatar on the left, logo center, wallet styled as a label. After: logo on the left, wallet pill + bell + avatar grouped on the right.',
+    usabilityNotes: {
+      notes: [
+        'Teammates checking their balance on the fly tried tapping the “972” number — nothing happened. They went looking for the wallet in Settings, then in Profile, before giving up.',
+        'Notifications in the bottom nav were often discovered hours or days after they arrived — usually when the user next opened Messages for an unrelated reason.',
+      ],
+    },
+    tradeOffs: {
+      items: [
+        {
+          wanted:
+            'A redesigned notification feed — one neat sheet showing “Shaan recognized you,” “You earned 50 points,” “Lenovo offer: 10% off laptops” — all organized by type and time, right from the bell.',
+          shipped:
+            'Bell with a red count badge. Tapping it opens the existing (unchanged) notifications screen.',
+          reason:
+            'Redesigning the notifications screen is a whole separate project — more screens, more data, more edge cases, 3–4 months of work. Rolling it in would have delayed the header redesign that long. I shipped the header fast and parked the notifications redesign as a separate project.',
+          deferred: 'Separate case study. Separate quarter.',
+        },
+        {
+          wanted:
+            'A multi-wallet switcher. One app, multiple point programs (Rewards, Perks, Fit, client-specific) — and a quick way to pick which wallet you want to use for the current transaction. The chevron inside the wallet pill on the client-branded variant was my first exploration of this idea.',
+          shipped:
+            'Single-tap on the wallet opens the one wallet screen. The chevron in the client-branded variant mock is a design exploration, not a shipped feature.',
+          reason:
+            'The backend doesn’t support multiple wallets per user yet. Until the data model has multi-wallet in it, there’s nothing meaningful for the UI to switch between — so the exploration stays as a design artifact instead of a shipped behaviour.',
+          deferred: 'When the backend introduces multi-wallet support, bring the switcher in — probably as the chevron-in-pill pattern first, extending to the other variants if multiple wallets land there too.',
+        },
+      ],
+    },
+  },
+  {
+    number: '03',
     title: 'Redeem a reward from the store',
     why: 'The redeem flow is the app\'s most-repeated action — day-to-day traffic hinges on it. The old flow made users walk through four screens for a single-intent task.',
     beforeFlow: [
@@ -194,60 +368,6 @@ const TASKS: Task[] = [
       { k: 'Taps to redeem', v: '5 → 2' },
       { k: 'Price visible on', v: 'Screen 3 → Screen 1' },
       { k: 'Return to browse', v: 'Automatic' },
-    ],
-  },
-  {
-    number: '03',
-    title: 'Redesigning the top navigation of the R&R app',
-    why:
-      "I rebuilt the app's top nav from a decorative center-logo strip into a right-weighted action header — notifications pulled out of the bottom bar, wallet turned into a tappable pill, and the whole thing shipped as one reusable component for Vantage Circle, Vantage Fit, and client-branded versions. What I looked at before changing it: how consumer apps like LinkedIn, Slack and Instagram place the account and alerts; Apple's Human Interface Guidelines on tap targets; and the team's own observations about how people were (and weren't) using the old header.",
-    beforeFlow: [
-      {
-        label: 'Old header',
-        note:
-          'Avatar on the left, company logo centered, wallet right as a plain label. Notifications live in the bottom nav, not here.',
-        // src: '/engagement/assets/header-before.png',   // drop in when ready
-      },
-    ],
-    problem: [
-      'The avatar sat on the left — where no one looks for their account.',
-      'The company logo took the center, the most valuable spot on the screen, used for decoration.',
-      'Notifications lived in the bottom nav, far from where attention lands when the app opens.',
-      "The wallet looked like a label, not a button — users didn't realise they could tap it.",
-      "Problem statement — users miss notifications and don't realise the wallet is tappable, because the old header prioritises a decorative center logo over the actions people actually need, which leads to extra taps and alerts discovered late or not at all.",
-    ],
-    afterFlow: [
-      {
-        label: 'Vantage Fit',
-        note: "Fit's logo on the left. Wallet pill, bell and avatar grouped on the right.",
-        // src: '/engagement/assets/header-after-fit.png',
-      },
-      {
-        label: 'Vantage Circle',
-        note: 'Same shell, different brand mark. Circle on the left, same right-side cluster.',
-        // src: '/engagement/assets/header-after-circle.png',
-      },
-      {
-        label: 'Client-branded',
-        note:
-          'Flexible logo slot takes any client mark. Wallet pill becomes a dropdown when a client runs multiple point programs.',
-        // src: '/engagement/assets/header-after-client.png',
-      },
-    ],
-    changes: [
-      'Moved the logo to the left — matches the convention users carry from consumer apps.',
-      'Turned the wallet into a pill button — a rounded grey chip with icon and number. Reads as tappable; meets Apple\'s 44 × 44 pt tap target.',
-      'Pulled notifications out of the bottom nav into the header. A bell with a red badge, in the spot where attention first lands.',
-      'Moved the avatar to the right — where LinkedIn, Slack and most consumer apps keep it.',
-      'Gave the wallet pill and the bell the same grey rounded style, so they read as one cluster — the quick-actions set.',
-    ],
-    rationale:
-      "One component powers every skin. The logo slot accepts Vantage Fit's mark, Vantage Circle's, or a client's own; when a client runs multiple point programs the wallet pill becomes a dropdown that switches between balances. A new client brand becomes a config change, not a new build — which is the kind of scalability a product used by many companies needs the moment it leaves one.",
-    benefits: [
-      { k: 'Layout', v: 'Logo center → logo left' },
-      { k: 'Notifications', v: 'Bottom nav → header' },
-      { k: 'Wallet', v: 'Plain label → pill button' },
-      { k: 'Scalability', v: 'Per-product build → one slotted component' },
     ],
   },
 ]
@@ -858,34 +978,130 @@ function TaskBlock({ task }: { task: Task }) {
           </FadeIn>
         </div>
 
-        {/* After flow beside what changed */}
-        <div className="mt-16 grid gap-12 min-[1360px]:grid-cols-[auto_minmax(320px,1fr)] min-[1360px]:gap-12">
-          <FadeIn y={22} className="min-w-0">
-            <FlowStrip variant="after" screens={task.afterFlow} />
-          </FadeIn>
-
-          <FadeIn y={18} delay={0.06} className="min-[1360px]:pt-10">
-            <Eyebrow>What I changed</Eyebrow>
-            <ol className="mt-5 grid gap-4">
-              {task.changes.map((c, i) => (
+        {/* Usability notes — informal observations from watching real
+            teammates use the old flow. Quieter than the Problem bullets so
+            the viewer understands these are observations, not analysis. */}
+        {task.usabilityNotes && task.usabilityNotes.notes.length > 0 && (
+          <FadeIn y={18} className="mt-12 max-w-[760px]">
+            <Eyebrow>{task.usabilityNotes.heading ?? 'What I noticed'}</Eyebrow>
+            <ul className="mt-5 grid gap-4">
+              {task.usabilityNotes.notes.map((n, i) => (
                 <li
                   key={i}
-                  className="flex gap-4 rounded-xl p-4 text-[15px] leading-[1.6]"
-                  style={{ background: T.paperWarm, color: T.bodyInk }}
+                  className="text-[15.5px] leading-[1.65]"
+                  style={{
+                    color: T.bodyInk,
+                    borderLeft: `2px solid ${T.paperLine}`,
+                    paddingLeft: 18,
+                  }}
                 >
-                  <span
-                    className="text-[13px] font-bold"
-                    style={{ color: T.orange, fontVariantNumeric: 'tabular-nums' }}
-                  >
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <span>{c}</span>
+                  {n}
                 </li>
               ))}
-            </ol>
+            </ul>
           </FadeIn>
+        )}
 
-        </div>
+        {/* After — one of two renderings. If the task supplies a wide
+            `afterImage` (e.g. a before/after comparison panel), render it
+            full-width with "What I changed" stacked below. Otherwise, keep
+            the original side-by-side layout: AFTER phone row on the left,
+            "What I changed" column on the right. */}
+        {task.afterImage ? (
+          <>
+            {/* AFTER segment — image on the left, label + description on the
+                right at wide screens. Stacks on mobile. */}
+            <FadeIn y={22} className="mt-16">
+              <div className="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-14">
+                {/* Image */}
+                <figure style={{ background: T.paperWarm }}>
+                  <img
+                    src={task.afterImage}
+                    alt="Before and after of the redesigned header"
+                    className="block h-auto w-full"
+                    loading="lazy"
+                  />
+                </figure>
+
+                {/* Label strip + description */}
+                <div>
+                  <div className="mb-5 flex flex-wrap items-center gap-3">
+                    <span
+                      className="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em]"
+                      style={{ background: T.orange, color: '#FFFFFF' }}
+                    >
+                      After
+                    </span>
+                    <span
+                      className="text-[11px] uppercase tracking-[0.14em]"
+                      style={{ color: T.fadedInk }}
+                    >
+                      Before vs after
+                    </span>
+                  </div>
+                  {task.afterImageCaption && (
+                    <p
+                      className="text-[16px] leading-[1.65]"
+                      style={{ color: T.bodyInk, fontWeight: 400 }}
+                    >
+                      {task.afterImageCaption}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </FadeIn>
+
+            {/* What I changed — stacked below the AFTER segment, at the
+                same max width so the two blocks share a left-edge rhythm. */}
+            <FadeIn y={18} delay={0.06} className="mt-14 max-w-[760px]">
+              <Eyebrow>What I changed</Eyebrow>
+              <ol className="mt-5 grid gap-4">
+                {task.changes.map((c, i) => (
+                  <li
+                    key={i}
+                    className="flex gap-4 rounded-xl p-4 text-[15px] leading-[1.6]"
+                    style={{ background: T.paperWarm, color: T.bodyInk }}
+                  >
+                    <span
+                      className="text-[13px] font-bold"
+                      style={{ color: T.orange, fontVariantNumeric: 'tabular-nums' }}
+                    >
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span>{c}</span>
+                  </li>
+                ))}
+              </ol>
+            </FadeIn>
+          </>
+        ) : (
+          <div className="mt-16 grid gap-12 min-[1360px]:grid-cols-[auto_minmax(320px,1fr)] min-[1360px]:gap-12">
+            <FadeIn y={22} className="min-w-0">
+              <FlowStrip variant="after" screens={task.afterFlow} />
+            </FadeIn>
+
+            <FadeIn y={18} delay={0.06} className="min-[1360px]:pt-10">
+              <Eyebrow>What I changed</Eyebrow>
+              <ol className="mt-5 grid gap-4">
+                {task.changes.map((c, i) => (
+                  <li
+                    key={i}
+                    className="flex gap-4 rounded-xl p-4 text-[15px] leading-[1.6]"
+                    style={{ background: T.paperWarm, color: T.bodyInk }}
+                  >
+                    <span
+                      className="text-[13px] font-bold"
+                      style={{ color: T.orange, fontVariantNumeric: 'tabular-nums' }}
+                    >
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span>{c}</span>
+                  </li>
+                ))}
+              </ol>
+            </FadeIn>
+          </div>
+        )}
 
         {/* The new flow in motion — a looping phone-framed video on the left,
             editorial copy on the right. Rendered only when a task supplies
@@ -896,14 +1112,14 @@ function TaskBlock({ task }: { task: Task }) {
           <FadeIn
             y={22}
             delay={0.08}
-            className="mt-16 grid items-center gap-12 lg:grid-cols-[auto_minmax(0,1fr)] lg:gap-20"
+            className="mt-16 grid items-center justify-center gap-12 lg:grid-cols-[auto_minmax(0,520px)] lg:gap-20"
           >
             <div className="flex justify-center lg:justify-start">
               <VideoFrame src={task.videoSrc} />
             </div>
 
             {task.videoCopy && (
-              <div className="max-w-[520px]">
+              <div>
                 <Eyebrow>{task.videoCopy.eyebrow ?? 'In motion'}</Eyebrow>
                 <h3
                   className="mt-5"
@@ -929,7 +1145,7 @@ function TaskBlock({ task }: { task: Task }) {
           </FadeIn>
         )}
 
-        <div className="mt-16 max-w-[760px]">
+        <div className="mx-auto mt-16 max-w-[760px]">
           <FadeIn y={18} delay={0.05}>
             <Eyebrow>Why</Eyebrow>
             <blockquote
@@ -947,10 +1163,121 @@ function TaskBlock({ task }: { task: Task }) {
           </FadeIn>
         </div>
 
-        {/* Benefit */}
+        {/* Trade-offs — the ship-reality block. Each card shows what I
+            wanted, what shipped, why they're different, and when (if ever)
+            the gap gets closed. Sits between Why rationale (reasoning) and
+            Benefit chips (results) so the viewer sees: here's the ideal,
+            here's where it bent, here's what came out. */}
+        {task.tradeOffs && task.tradeOffs.items.length > 0 && (
+          <FadeIn y={22} className="mt-16">
+            <Eyebrow>{task.tradeOffs.heading ?? 'Trade-offs'}</Eyebrow>
+            <h3
+              className="mt-5 max-w-[760px]"
+              style={{
+                fontFamily: "'Poppins', system-ui, sans-serif",
+                fontWeight: 600,
+                fontSize: 'clamp(1.4rem, 2.4vw, 30px)',
+                lineHeight: 1.15,
+                letterSpacing: '-0.015em',
+                color: T.ink,
+              }}
+            >
+              Where I had to bend. Everything that shipped is the version that fit.
+            </h3>
+
+            <div
+              className={`mt-8 grid gap-4 ${
+                task.tradeOffs.items.length === 1
+                  ? 'max-w-[560px]'
+                  : task.tradeOffs.items.length === 2
+                    ? 'md:grid-cols-2'
+                    : 'md:grid-cols-2 lg:grid-cols-3'
+              }`}
+            >
+              {task.tradeOffs.items.map((t, i) => (
+                <div
+                  key={i}
+                  className="rounded-2xl p-6"
+                  style={{
+                    background: T.paperWarm,
+                    border: `1px solid ${T.paperLine}`,
+                  }}
+                >
+                  <div className="grid gap-4">
+                    <div>
+                      <div
+                        className="text-[10px] font-bold uppercase tracking-[0.22em]"
+                        style={{ color: T.orange }}
+                      >
+                        Wanted
+                      </div>
+                      <p
+                        className="mt-2 text-[14.5px] leading-[1.55]"
+                        style={{ color: T.ink, fontWeight: 500 }}
+                      >
+                        {t.wanted}
+                      </p>
+                    </div>
+                    <div>
+                      <div
+                        className="text-[10px] font-bold uppercase tracking-[0.22em]"
+                        style={{ color: T.fadedInk }}
+                      >
+                        Shipped
+                      </div>
+                      <p
+                        className="mt-2 text-[14px] leading-[1.55]"
+                        style={{ color: T.bodyInk }}
+                      >
+                        {t.shipped}
+                      </p>
+                    </div>
+                    <div>
+                      <div
+                        className="text-[10px] font-bold uppercase tracking-[0.22em]"
+                        style={{ color: T.fadedInk }}
+                      >
+                        Why
+                      </div>
+                      <p
+                        className="mt-2 text-[13.5px] leading-[1.55]"
+                        style={{ color: T.fadedInk }}
+                      >
+                        {t.reason}
+                      </p>
+                    </div>
+                    {t.deferred && (
+                      <div>
+                        <div
+                          className="text-[10px] font-bold uppercase tracking-[0.22em]"
+                          style={{ color: T.fadedInk }}
+                        >
+                          Deferred to
+                        </div>
+                        <p
+                          className="mt-2 text-[13.5px] leading-[1.55]"
+                          style={{ color: T.fadedInk }}
+                        >
+                          {t.deferred}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </FadeIn>
+        )}
+
+        {/* Benefit — grid adapts to array length so Task 01's 5-chip set
+            fills a 5-column row instead of wrapping an orphan onto row 2. */}
         <FadeIn y={22} className="mt-16">
           <Eyebrow>Benefit</Eyebrow>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div
+            className={`mt-5 grid gap-4 sm:grid-cols-2 ${
+              task.benefits.length >= 5 ? 'lg:grid-cols-5' : 'lg:grid-cols-4'
+            }`}
+          >
             {task.benefits.map((b) => (
               <div
                 key={b.k}
@@ -977,73 +1304,88 @@ function TaskBlock({ task }: { task: Task }) {
             ))}
           </div>
         </FadeIn>
-      </div>
-    </section>
-  )
-}
 
-function Outcomes() {
-  return (
-    <section
-      className="relative overflow-hidden px-6 py-24 sm:px-10 sm:py-32 lg:px-14 lg:py-40"
-      style={{ background: T.ink, color: '#FFFFFF' }}
-    >
-      <div className="mx-auto max-w-[1280px]">
-        <FadeIn y={16}>
-          <Eyebrow dark>Cumulative outcome</Eyebrow>
-        </FadeIn>
-        <FadeIn
-          as="h2"
-          y={24}
-          className="mt-6 text-white"
-          style={{
-            fontFamily: "'Poppins', system-ui, sans-serif",
-            fontWeight: 600,
-            fontSize: 'clamp(2rem, 5vw, 68px)',
-            lineHeight: 1.04,
-            letterSpacing: '-0.025em',
-            maxWidth: '22ch',
-          }}
-        >
-          The redesigns don't stack up as features — they stack up as <em className="not-italic" style={{ color: T.orange }}>time saved</em>, every day, for everyone who opens the app.
-        </FadeIn>
-
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { k: 'Total screens removed', v: '[N]' },
-            { k: 'Average taps saved / task', v: '[N]' },
-            { k: 'Flows redesigned', v: `${TASKS.length}` },
-            { k: 'Support tickets on these flows', v: '[↓ N%]' },
-          ].map((s) => (
-            <FadeIn
-              key={s.k}
-              y={18}
-              delay={0.05}
-              className="rounded-2xl p-6"
-              style={{ background: T.inkPanel, border: `1px solid ${T.inkLine}` }}
-            >
-              <div
-                className="text-[10.5px] font-bold uppercase tracking-[0.22em]"
-                style={{ color: T.orange }}
+        {/* Expected impact — projected metrics explicitly marked as not
+            measured. Dashed border + "EXPECTED IMPACT" label distinguish
+            these cards from the dark Benefit cards (which carry design
+            deltas, not forecasts). Replace placeholder values + remove the
+            "expected" framing once post-ship analytics are in. */}
+        {task.expectedImpact && task.expectedImpact.metrics.length > 0 && (
+          <FadeIn y={22} className="mt-12">
+            <div className="mb-5 flex flex-wrap items-center gap-3">
+              <span
+                className="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em]"
+                style={{
+                  border: `1px dashed ${T.orange}`,
+                  color: T.orange,
+                  background: 'transparent',
+                }}
               >
-                {s.k}
-              </div>
-              <div
-                className="mt-3 text-[28px] font-semibold leading-tight"
-                style={{ color: '#FFFFFF' }}
+                Expected impact
+              </span>
+              <span
+                className="text-[11px] uppercase tracking-[0.14em]"
+                style={{ color: T.fadedInk }}
               >
-                {s.v}
-              </div>
-            </FadeIn>
-          ))}
-        </div>
+                Projected · not measured
+              </span>
+            </div>
 
-        <p
-          className="mt-8 text-[12px] uppercase tracking-[0.14em]"
-          style={{ color: T.inkMuted }}
-        >
-          Replace bracketed numbers with real figures — or delete this section if you'd rather keep the case study qualitative.
-        </p>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {task.expectedImpact.metrics.map((m) => (
+                <div
+                  key={m.label}
+                  className="rounded-2xl p-6"
+                  style={{
+                    background: T.paperWarm,
+                    border: `1px dashed ${T.paperLine}`,
+                  }}
+                >
+                  <div
+                    className="text-[10.5px] font-bold uppercase tracking-[0.22em]"
+                    style={{ color: T.fadedInk }}
+                  >
+                    {m.label}
+                  </div>
+                  <div className="mt-4 flex flex-wrap items-baseline gap-3">
+                    <span
+                      className="text-[30px] font-semibold leading-none"
+                      style={{ color: T.fadedInk, fontVariantNumeric: 'tabular-nums' }}
+                    >
+                      {m.before}
+                    </span>
+                    <span className="text-[18px] font-semibold" style={{ color: T.orange }}>
+                      {'→'}
+                    </span>
+                    <span
+                      className="text-[30px] font-semibold leading-none"
+                      style={{ color: T.ink, fontVariantNumeric: 'tabular-nums' }}
+                    >
+                      {m.after}
+                    </span>
+                  </div>
+                  {m.context && (
+                    <div
+                      className="mt-4 text-[13px] leading-[1.55]"
+                      style={{ color: T.fadedInk }}
+                    >
+                      {m.context}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {task.expectedImpact.note && (
+              <p
+                className="mt-6 max-w-[640px] text-[12px] leading-[1.55]"
+                style={{ color: T.fadedInk }}
+              >
+                {task.expectedImpact.note}
+              </p>
+            )}
+          </FadeIn>
+        )}
       </div>
     </section>
   )
@@ -1173,7 +1515,6 @@ export default function EmployeeEngagementPage() {
       {TASKS.map((task) => (
         <TaskBlock key={task.number} task={task} />
       ))}
-      <Outcomes />
       <Learnings />
       <Footer />
     </div>
